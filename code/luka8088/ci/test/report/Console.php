@@ -18,7 +18,7 @@ class Console {
     op\metaContext(OutputInterface::class)->write(
       "  \x1b[91m" . $issue['name']
       . "\x1b[0m\n  " . $issue['message'] . "\n"
-      . ($issue['description'] ? "  " . $issue['description'] . "\n" : '')
+      . ($issue['description'] ? '  ' . str_replace("\n", "\n  ", $issue['description']) . "\n" : '')
       . "\n"
     );
   }

@@ -6,15 +6,17 @@ use \luka8088\ci\Application;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
 use \luka8088\phops as op;
-use \Symfony\Component\Console\Input\StringInput;
-use \Symfony\Component\Console\Output\BufferedOutput;
+use \Symfony\Component\Process\PhpExecutableFinder;
+use \Symfony\Component\Process\Process;
 
 class PHPCSFixer {
 
+  public $executable = '';
   public $configuration = '';
 
-  function __construct ($configuration) {
+  function __construct ($configuration, $executable = '') {
     $this->configuration = $configuration;
+    $this->executable = $executable;
   }
 
   function getIdentifier () {
@@ -24,10 +26,24 @@ class PHPCSFixer {
   /** @ExtensionCall("luka8088.ci.test.run") */
   function run () {
 
-    $phpcsfixer = new \PhpCsFixer\Console\Application();
+    $executable = $this->executable;
 
-    $configurationStream = tmpfile();
-    fwrite($configurationStream, '<?php
+    if (!$executable) {
+      $basePath = __dir__;
+      while ($basePath != dirname($basePath)) {
+        if (is_file($basePath . '/vendor/friendsofphp/php-cs-fixer/php-cs-fixer'))
+          break;
+        $basePath = dirname($basePath);
+      }
+      if ($basePath)
+        $executable = $basePath . '/vendor/friendsofphp/php-cs-fixer/php-cs-fixer';
+    }
+
+    if (!$executable)
+      throw new Exception('PHP Coding Standards Fixer executable not found.');
+
+    $configurationFile = tmpfile();
+    fwrite($configurationFile, '<?php
       $configuration = require(' . var_export($this->configuration, true) . ');
       $finder = PhpCsFixer\Finder::create()
         ->in(' . implode(')->in(', array_map(function ($path) {
@@ -37,17 +53,31 @@ class PHPCSFixer {
       $configuration->setFinder($finder);
       return $configuration;
     ');
-    $configurationStreamInfo = stream_get_meta_data($configurationStream);
+    $configurationFileInfo = stream_get_meta_data($configurationFile);
 
-    $phpcsfixer->setAutoExit(false);
-    $output = new BufferedOutput(BufferedOutput::VERBOSITY_NORMAL, true);
-    $exitCode = $phpcsfixer->run(new StringInput('fix --config ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? '"' . addcslashes($configurationStreamInfo['uri'], '\\"') . '"' : escapeshellarg($configurationStreamInfo['uri'])) . ' --dry-run --format json --verbose --diff'), $output);
+    $phpExecutableFinder = new PhpExecutableFinder();
 
-    /** @see https://github.com/FriendsOfPHP/PHP-CS-Fixer#exit-codes */
-    if (!in_array($exitCode, [0, 4, 8]))
-      throw new \Exception('Error running PHP CS Fixer: ' . $output->fetch());
+    $process = new Process(
+      $phpExecutableFinder->find()
+      . ' ' . escapeshellarg($executable)
+      . ' ' . 'fix'
+      . ' ' . '--config ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
+        ? '"' . addcslashes($configurationFileInfo['uri'], '\\"') . '"'
+        : escapeshellarg($configurationFileInfo['uri']))
+      . ' ' . '--dry-run'
+      . ' ' . '--format json'
+      . ' ' . '--verbose'
+      . ' ' . '--diff'
+    );
 
-    $phpcsfixerReport = json_decode($output->fetch(), true);
+    $process->setTimeout(null);
+
+    $process->run();
+
+    if (!in_array($process->getExitCode(), [0, 4, 8]))
+      throw new Exception('Error while running PHP Coding Standards Fixer: ' . $process->getErrorOutput());
+
+    $phpcsfixerReport = json_decode($process->getOutput(), true);
 
     if (!is_array($phpcsfixerReport))
       throw new \Exception('Error while reading PHP CS Fixer report.');

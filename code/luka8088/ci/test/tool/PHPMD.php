@@ -2,19 +2,24 @@
 
 namespace luka8088\ci\test\tool;
 
+use \Exception;
 use \luka8088\ci\Application;
 use \luka8088\ci\SymbolFinder;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
 use \luka8088\phops as op;
 use \SimpleXMLElement;
+use \Symfony\Component\Process\PhpExecutableFinder;
+use \Symfony\Component\Process\Process;
 
 class PHPMD {
 
+  public $executable = '';
   public $configuration = '';
 
-  function __construct ($configuration) {
+  function __construct ($configuration, $executable = '') {
     $this->configuration = $configuration;
+    $this->executable = $executable;
   }
 
   function getIdentifier () {
@@ -24,21 +29,42 @@ class PHPMD {
   /** @ExtensionCall("luka8088.ci.test.run") */
   function run () {
 
-    $reportStream = fopen('php://memory', 'rw');
-    $reportRenderer = new \PHPMD\Renderer\XMLRenderer();
-    $reportRenderer->setWriter(new \PHPMD\Writer\StreamWriter($reportStream));
+    $executable = $this->executable;
 
-    $phpmd = new \PHPMD\PHPMD();
-    $phpmd->processFiles(
-      implode(',', op\metaContext(Application::class)->paths),
-      $this->configuration,
-      [$reportRenderer],
-      new \PHPMD\RuleSetFactory()
+    if (!$executable) {
+      $basePath = __dir__;
+      while ($basePath != dirname($basePath)) {
+        if (is_file($basePath . '/vendor/phpmd/phpmd/src/bin/phpmd'))
+          break;
+        $basePath = dirname($basePath);
+      }
+      if ($basePath)
+        $executable = $basePath . '/vendor/phpmd/phpmd/src/bin/phpmd';
+    }
+
+    if (!$executable)
+      throw new Exception('PHP Mess Detector executable not found.');
+
+    $phpExecutableFinder = new PhpExecutableFinder();
+
+    $process = new Process(
+      $phpExecutableFinder->find()
+      . ' ' . escapeshellarg($executable)
+      . ' ' . escapeshellarg(implode(',', op\metaContext(Application::class)->paths))
+      . ' ' . 'xml'
+      . ' ' . escapeshellarg($this->configuration)
+      . ' ' . '--ignore-violations-on-exit'
     );
 
+    $process->setTimeout(null);
+
+    $process->run();
+
+    if (!$process->isSuccessful())
+      throw new Exception('Error while running PHP Mess Detector: ' . $process->getErrorOutput());
+
     libxml_use_internal_errors(true);
-    rewind($reportStream);
-    $phpmdReport = new SimpleXMLElement(stream_get_contents($reportStream));
+    $phpmdReport = new SimpleXMLElement($process->getOutput());
 
     $symbolFinder = new SymbolFinder();
 
