@@ -14,6 +14,7 @@ class Application extends \Symfony\Component\Console\Application implements Arra
   /** @internal */
   protected $extensionInterface = null;
 
+  public $extensions = [];
   public $paths = [];
 
   function __construct () {
@@ -49,6 +50,7 @@ class Application extends \Symfony\Component\Console\Application implements Arra
   }
 
   function registerExtension ($extension) {
+    $this->extensions[] = $extension;
     $this->extensionInterface[] = $extension;
   }
 

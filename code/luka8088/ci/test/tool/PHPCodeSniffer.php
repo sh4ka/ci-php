@@ -26,8 +26,7 @@ class PHPCodeSniffer {
     return 'phpcs';
   }
 
-  /** @ExtensionCall("luka8088.ci.test.run") */
-  function run () {
+  function runTests () {
 
     $executable = $this->executable;
 
