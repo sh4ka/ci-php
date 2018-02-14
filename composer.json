@@ -1,0 +1,40 @@
+{
+
+  "name": "luka8088/ci",
+  "description": "PHP continuous integration assistant.",
+  "homepage": "https://gitlab.com/luka8088/ci",
+  "license": "MIT",
+  "type": "library",
+
+  "authors": [
+    {
+      "name": "Luka Unuk (luka8088)",
+      "email": "luka8088@nrsk.net"
+    }
+  ],
+
+  "require": {
+    "luka8088/extension-interface": "^0.3",
+    "luka8088/phops": "^0.4",
+    "php": "^5.5 || ^7.0",
+    "symfony/console": "^3.2 || ^4.0",
+    "symfony/process": "^3.2 || ^4.0"
+  },
+
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.1.x-dev"
+    }
+  },
+
+  "bin": [
+    "ci"
+  ],
+
+  "autoload": {
+    "psr-4": {
+      "": "code/"
+    }
+  }
+
+}
