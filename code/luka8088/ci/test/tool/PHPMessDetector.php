@@ -12,7 +12,7 @@ use \SimpleXMLElement;
 use \Symfony\Component\Process\PhpExecutableFinder;
 use \Symfony\Component\Process\Process;
 
-class PHPMD {
+class PHPMessDetector {
 
   public $executable = '';
   public $configuration = '';
@@ -85,12 +85,53 @@ class PHPMD {
         ;
       }
     }
+    $rule = substr($testcaseName, 0, strpos($testcaseName, ' '));
     foreach ($testcaseMessageMap as $testcaseName => $message)
       op\metaContext(Result::class)->addIssue(
         'PHP Mess Detector: ' . $testcaseName,
-        implode("\n", array_unique($message))
+        implode("\n", array_unique($message)),
+        'https://phpmd.org/rules/' . strtolower(self::$ruleClassMap[$rule]) . '.html#' . strtolower($rule)
       );
 
   }
+
+  static $ruleClassMap = [
+    'BooleanArgumentFlag' => 'CleanCode',
+    'BooleanGetMethodName' => 'Naming',
+    'CamelCaseClassName' => 'Controversial',
+    'CamelCaseMethodName' => 'Controversial',
+    'CamelCaseParameterName' => 'Controversial',
+    'CamelCasePropertyName' => 'Controversial',
+    'CamelCaseVariableName' => 'Controversial',
+    'ConstantNamingConventions' => 'Naming',
+    'ConstructorWithNameAsEnclosingClass' => 'Naming',
+    'CouplingBetweenObjects' => 'Design',
+    'CyclomaticComplexity' => 'CodeSize',
+    'DepthOfInheritance' => 'Design',
+    'DevelopmentCodeFragment' => 'Design',
+    'ElseExpression' => 'CleanCode',
+    'EvalExpression' => 'Design',
+    'ExcessiveClassComplexity' => 'CodeSize',
+    'ExcessiveClassLength' => 'CodeSize',
+    'ExcessiveMethodLength' => 'CodeSize',
+    'ExcessiveParameterList' => 'CodeSize',
+    'ExcessivePublicCount' => 'CodeSize',
+    'ExitExpression' => 'Design',
+    'GotoStatement' => 'Design',
+    'LongVariable' => 'Naming',
+    'NPathComplexity' => 'CodeSize',
+    'NumberOfChildren' => 'Design',
+    'ShortMethodName' => 'Naming',
+    'ShortVariable' => 'Naming',
+    'StaticAccess' => 'CleanCode',
+    'Superglobals' => 'Controversial',
+    'TooManyFields' => 'CodeSize',
+    'TooManyMethods' => 'CodeSize',
+    'TooManyPublicMethods' => 'CodeSize',
+    'UnusedFormalParameter' => 'UnusedCode',
+    'UnusedLocalVariable' => 'UnusedCode',
+    'UnusedPrivateField' => 'UnusedCode',
+    'UnusedPrivateMethod' => 'UnusedCode',
+  ];
 
 }

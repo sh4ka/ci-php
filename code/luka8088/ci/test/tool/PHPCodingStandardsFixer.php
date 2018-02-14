@@ -9,7 +9,7 @@ use \luka8088\phops as op;
 use \Symfony\Component\Process\PhpExecutableFinder;
 use \Symfony\Component\Process\Process;
 
-class PHPCSFixer {
+class PHPCodingStandardsFixer {
 
   public $executable = '';
   public $configuration = '';
@@ -45,7 +45,7 @@ class PHPCSFixer {
     $configurationFile = tmpfile();
     fwrite($configurationFile, '<?php
       $configuration = require(' . var_export($this->configuration, true) . ');
-      $finder = PhpCsFixer\Finder::create()
+      $finder = \PhpCsFixer\Finder::create()
         ->in(' . implode(')->in(', array_map(function ($path) {
           return var_export($path, true);
         }, op\metaContext(Application::class)->paths)) . ')
