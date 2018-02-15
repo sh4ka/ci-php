@@ -85,8 +85,8 @@ class PHPCodingStandardsFixer {
     foreach ($phpcsfixerReport["files"] as $file)
       op\metaContext(Result::class)->addIssue(
         'PHP Coding Standards Fixer: Coding Standards in ' . str_replace('\\', '/', $file["name"]),
-        'Fixes that need to be applied: ' . implode(", ", $file["appliedFixers"]),
-        $file["diff"]
+        'Fixes that need to be applied: ' . implode(", ", $file["appliedFixers"])
+        . "\n" . $file["diff"]
       );
 
   }

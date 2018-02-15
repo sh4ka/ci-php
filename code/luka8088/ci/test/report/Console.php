@@ -15,10 +15,12 @@ class Console {
 
   /** @ExtensionCall("luka8088.ci.test.issueReport") */
   function issueReport ($issue) {
+    $message = preg_replace_callback('/(?i)((http|https)\:\/\/[^ \t\r\n\(\)\<\>\*\;]+)/', function ($match) {
+        return "\x1b[93m" . $match[1] . "\x1b[0m";
+    }, $issue['message']);
     op\metaContext(OutputInterface::class)->write(
       "  \x1b[91m" . $issue['name']
-      . "\x1b[0m\n  " . str_replace("\n", "\n  ", $issue['message']) . "\n"
-      . ($issue['description'] ? '  ' . str_replace("\n", "\n  ", $issue['description']) . "\n" : '')
+      . "\x1b[0m\n  " . str_replace("\n", "\n  ", $message) . "\n"
       . "\n"
     , false, OutputInterface::OUTPUT_RAW);
   }

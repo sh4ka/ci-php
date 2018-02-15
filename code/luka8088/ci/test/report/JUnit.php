@@ -44,8 +44,8 @@ class JUnit {
           $this->output,
           '      <testcase name="' .
                       self::xmlEncode(trim(substr($issue['name'], strpos($issue['name'], ':') + 1))) . '">' . "\n" .
-          '        <failure message="' . self::xmlEncode($issue['message']) . '">' .
-                    self::xmlEncode($issue['description']) .
+          '        <failure>' .
+                    self::xmlEncode($issue['message']) .
                   '</failure>' . "\n" .
           '      </testcase>' . "\n"
         );

@@ -10,11 +10,10 @@ class Result {
 
   public $issues = [];
 
-  function addIssue ($name, $message, $description = '') {
+  function addIssue ($name, $message) {
     $issue = new ArrayObject([
       'name' => $name,
       'message' => $message,
-      'description' => $description,
     ]);
     $keep = true;
     op\metaContext(ExtensionInterface::class)["luka8088.ci.test.issueFound"]->__invoke($issue, $keep);
