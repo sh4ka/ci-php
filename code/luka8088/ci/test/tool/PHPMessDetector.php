@@ -84,13 +84,14 @@ class PHPMessDetector {
         ;
       }
     }
-    $rule = substr($testcaseName, 0, strpos($testcaseName, ' '));
-    foreach ($testcaseMessageMap as $testcaseName => $message)
+    foreach ($testcaseMessageMap as $testcaseName => $message) {
+      $rule = substr($testcaseName, 0, strpos($testcaseName, ' '));
       op\metaContext(Result::class)->addIssue(
         'PHP Mess Detector: ' . $testcaseName,
         implode("\n", array_unique($message)),
         'https://phpmd.org/rules/' . strtolower(self::$ruleClassMap[$rule]) . '.html#' . strtolower($rule)
       );
+    }
 
   }
 

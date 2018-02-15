@@ -2,6 +2,7 @@
 
 namespace luka8088\ci\test\tool;
 
+use \Exception;
 use \luka8088\ci\Application;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;

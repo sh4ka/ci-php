@@ -20,7 +20,7 @@ class Console {
       . "\x1b[0m\n  " . str_replace("\n", "\n  ", $issue['message']) . "\n"
       . ($issue['description'] ? '  ' . str_replace("\n", "\n  ", $issue['description']) . "\n" : '')
       . "\n"
-    );
+    , false, OutputInterface::OUTPUT_RAW);
   }
 
 }
