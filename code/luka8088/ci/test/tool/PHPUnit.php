@@ -60,6 +60,7 @@ class PHPUnit {
     $process->run();
 
     $testMessageMap = [];
+    $testStatusMap = [];
     libxml_use_internal_errors(true);
     rewind($testReportFile);
     $phpunitReport = new SimpleXMLElement(stream_get_contents($testReportFile));
@@ -69,15 +70,28 @@ class PHPUnit {
         $testName = $testsuite->attributes()->name->__toString() . ': '
           . $testcase->attributes()->name->__toString();
         foreach ($testcase->xpath('./failure') as $failure) {
+          $testStatusMap[$testName] = 'failure';
           if (!isset($testMessageMap[$testName]))
             $testMessageMap[$testName] = [];
           $testMessageMap[$testName][]
             = trim(html_entity_decode(strip_tags($failure->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
         }
+        foreach ($testcase->xpath('./error') as $error) {
+          $testStatusMap[$testName] = 'error';
+          if (!isset($testMessageMap[$testName]))
+            $testMessageMap[$testName] = [];
+          $testMessageMap[$testName][]
+            = trim(html_entity_decode(strip_tags($error->asXML()), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        }
+        if (!isset($testStatusMap[$testName])) {
+          $testStatusMap[$testName] = 'success';
+          $testMessageMap[$testName] = [];
+        }
       }
 
     foreach ($testMessageMap as $testName => $message)
-      op\metaContext(Result::class)->addIssue(
+      op\metaContext(Result::class)->addTest(
+        $testStatusMap[$testName],
         $testName,
         implode("\n", array_unique($message))
       );

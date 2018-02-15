@@ -9,7 +9,7 @@ use \luka8088\phops as op;
 class JUnit {
 
   protected $output = null;
-  protected $issueToolMap = [];
+  protected $testToolMap = [];
 
   function __construct ($output) {
     $this->output = $output;
@@ -23,33 +23,40 @@ class JUnit {
       '<?xml version="1.0" encoding="UTF-8" ?>' . "\n" .
       '<testsuites>' . "\n"
     );
-    $this->issueToolMap = [];
+    $this->testToolMap = [];
   }
 
-  /** @ExtensionCall("luka8088.ci.test.issueReport") */
-  function issueReport ($issue) {
-    $this->issueToolMap[trim(substr($issue['name'], 0, strpos($issue['name'], ':')))][] = $issue;
+  /** @ExtensionCall("luka8088.ci.test.testReport") */
+  function testReport ($test) {
+    $this->testToolMap[trim(substr($test['name'], 0, strpos($test['name'], ':')))][] = $test;
   }
 
   /** @ExtensionCall("luka8088.ci.test.end") */
   function end () {
 
-    foreach ($this->issueToolMap as $tool => $issues) {
+    foreach ($this->testToolMap as $tool => $tests) {
       fwrite(
         $this->output,
         '  <testsuite name="' . self::xmlEncode($tool) . '">' . "\n"
       );
-      foreach ($issues as $issue)
+      foreach ($tests as $test)
         fwrite(
           $this->output,
           '      <testcase name="' .
-                      self::xmlEncode(trim(substr($issue['name'], strpos($issue['name'], ':') + 1))) . '">' . "\n" .
-          '        <failure>' .
-                    self::xmlEncode($issue['message']) .
-                  '</failure>' . "\n" .
+                      self::xmlEncode(trim(substr($test['name'], strpos($test['name'], ':') + 1))) . '">' . "\n" .
+          ($test['status'] == 'failure'
+            ? '        <failure>' .
+                        self::xmlEncode($test['message']) .
+                      '</failure>' . "\n"
+            : ($test['status'] == 'error'
+            ? '        <error>' .
+                        self::xmlEncode($test['message']) .
+                      '</error>' . "\n"
+            : ''
+          )) .
           '      </testcase>' . "\n"
         );
-      if (count($issues) == 0)
+      if (count($tests) == 0)
         fwrite(
           $this->output,
           '    <testcase name="OK"></testcase>' . "\n"
@@ -60,7 +67,7 @@ class JUnit {
       );
     }
 
-    if (count($this->issueToolMap) == 0)
+    if (count($this->testToolMap) == 0)
       fwrite(
         $this->output,
         '  <testsuite name="Sanity">' . "\n" .

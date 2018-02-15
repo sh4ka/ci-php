@@ -92,7 +92,8 @@ class PHPCodeSniffer {
       }
     }
     foreach ($testcaseMessageMap as $testcaseName => $message)
-      op\metaContext(Result::class)->addIssue(
+      op\metaContext(Result::class)->addTest(
+        'failure',
         'PHP Code Sniffer: ' . $testcaseName,
         implode("\n", array_unique($message))#,
         #'https://github.com/squizlabs/PHP_CodeSniffer/wiki/Customisable-Sniff-Properties#'

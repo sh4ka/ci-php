@@ -86,7 +86,8 @@ class PHPMessDetector {
     }
     foreach ($testcaseMessageMap as $testcaseName => $message) {
       $rule = substr($testcaseName, 0, strpos($testcaseName, ' '));
-      op\metaContext(Result::class)->addIssue(
+      op\metaContext(Result::class)->addTest(
+        'failure',
         'PHP Mess Detector: ' . $testcaseName,
         implode("\n", array_unique($message))
         . "\n" . 'Rule documentation: '

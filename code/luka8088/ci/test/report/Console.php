@@ -13,14 +13,18 @@ class Console {
     op\metaContext(OutputInterface::class)->write("\n");
   }
 
-  /** @ExtensionCall("luka8088.ci.test.issueReport") */
-  function issueReport ($issue) {
-    $message = preg_replace_callback('/(?i)((http|https)\:\/\/[^ \t\r\n\(\)\<\>\*\;]+)/', function ($match) {
+  /** @ExtensionCall("luka8088.ci.test.testReport") */
+  function testReport ($test) {
+    $message = trim(preg_replace_callback('/(?i)((http|https)\:\/\/[^ \t\r\n\(\)\<\>\*\;]+)/', function ($match) {
         return "\x1b[93m" . $match[1] . "\x1b[0m";
-    }, $issue['message']);
+    }, $test['message']));
     op\metaContext(OutputInterface::class)->write(
-      "  \x1b[91m" . $issue['name']
-      . "\x1b[0m\n  " . str_replace("\n", "\n  ", $message) . "\n"
+      (in_array($test['status'], ['error', 'failure']) ? "  \x1b[91m✖ " : "  \x1b[92m✔ ")
+      . "\x1b[0m"
+      . $test['name']
+      . "\x1b[0m"
+      . ($message ? "\n  " . str_replace("\n", "\n  ", $message) : '')
+      . "\n"
       . "\n"
     , false, OutputInterface::OUTPUT_RAW);
   }

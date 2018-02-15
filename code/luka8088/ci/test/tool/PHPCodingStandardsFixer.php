@@ -83,7 +83,8 @@ class PHPCodingStandardsFixer {
       throw new \Exception('Error while reading PHP CS Fixer report.');
 
     foreach ($phpcsfixerReport["files"] as $file)
-      op\metaContext(Result::class)->addIssue(
+      op\metaContext(Result::class)->addTest(
+        'failure',
         'PHP Coding Standards Fixer: Coding Standards in ' . str_replace('\\', '/', $file["name"]),
         'Fixes that need to be applied: ' . implode(", ", $file["appliedFixers"])
         . "\n" . $file["diff"]
