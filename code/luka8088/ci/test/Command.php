@@ -27,6 +27,9 @@ class Command extends \Symfony\Component\Console\Command\Command {
       $outputMetaContext = op\metaContextCreateScoped(OutputInterface::class, $output);
       $resultMetaContext = op\metaContextCreateScoped(Result::class, new Result());
 
+      // @todo: Rething.
+      op\metaContext(Application::class)[] = new \luka8088\ci\test\report\Console();
+
       op\metaContext(ExtensionInterface::class)["luka8088.ci.test.begin"]->__invoke();
       op\metaContext(ExtensionInterface::class)["luka8088.ci.test.run"]->__invoke();
 

@@ -28,7 +28,7 @@ class JUnit {
 
   /** @ExtensionCall("luka8088.ci.test.testReport") */
   function testReport ($test) {
-    $this->testToolMap[trim(substr($test['name'], 0, strpos($test['name'], ':')))][] = $test;
+    $this->testToolMap[trim(substr($test['name'], 0, strpos($test['name'], ': ')))][] = $test;
   }
 
   /** @ExtensionCall("luka8088.ci.test.end") */
@@ -43,7 +43,7 @@ class JUnit {
         fwrite(
           $this->output,
           '      <testcase name="' .
-                      self::xmlEncode(trim(substr($test['name'], strpos($test['name'], ':') + 1))) . '">' . "\n" .
+                      self::xmlEncode(trim(substr($test['name'], strpos($test['name'], ': ') + 1))) . '">' . "\n" .
           ($test['status'] == 'failure'
             ? '        <failure>' .
                         self::xmlEncode($test['message']) .

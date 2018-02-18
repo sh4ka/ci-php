@@ -26,8 +26,9 @@ class Application extends \Symfony\Component\Console\Application implements Arra
     $this->extensionInterface[] = [
       /** @ExtensionCall("luka8088.ci.test.begin") */ function () {},
       /** @ExtensionCall("luka8088.ci.test.end") */ function () {},
-      /** @ExtensionCall("luka8088.ci.test.testFound") */ function ($test, &$keep = true) {},
       /** @ExtensionCall("luka8088.ci.test.run") */ function () {},
+      /** @ExtensionCall("luka8088.ci.test.testFound") */ function ($test, &$keep = true) {},
+      /** @ExtensionCall("luka8088.ci.test.testReport") */ function ($issue) {},
     ];
 
     $this->add(new \luka8088\ci\test\Command());
