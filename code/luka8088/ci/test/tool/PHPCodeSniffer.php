@@ -118,6 +118,13 @@ class PHPCodeSniffer {
         #  . strtolower(implode('', array_slice(explode('.', $testcaseName), 0, 3)))
       );
 
+    if (count($testcaseMessageMap) == 0)
+      op\metaContext(Result::class)->addTest(
+        'success',
+        'PHP Code Sniffer: General',
+        'No PHP Code Sniffer issues found.'
+      );
+
   }
 
 }

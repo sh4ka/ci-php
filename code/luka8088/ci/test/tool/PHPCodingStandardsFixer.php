@@ -108,6 +108,13 @@ class PHPCodingStandardsFixer {
         . "\n" . $file["diff"]
       );
 
+    if (count($phpcsfixerReport["files"]) == 0)
+      op\metaContext(Result::class)->addTest(
+        count($phpcsfixerReport["files"]) == 0 ? 'success' : 'failure',
+        'PHP Coding Standards Fixer: General',
+        'No PHP Coding Standards Fixer issues found.'
+      );
+
   }
 
 }

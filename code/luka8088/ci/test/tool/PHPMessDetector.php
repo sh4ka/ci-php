@@ -113,6 +113,13 @@ class PHPMessDetector {
       );
     }
 
+    if (count($testcaseMessageMap) == 0)
+      op\metaContext(Result::class)->addTest(
+        count($testcaseMessageMap) == 0 ? 'success' : 'failure',
+        'PHP Mess Detector: General',
+        'No PHP Mess Detector issues found.'
+      );
+
   }
 
   static $ruleClassMap = [
