@@ -19,7 +19,10 @@ class Internal {
 
       $process = new \Symfony\Component\Process\PhpProcess('<?php
         $GLOBALS["__xdebug_disable_attempt_made"] = true;
-        $GLOBALS["argv"] = ' . var_export($GLOBALS['argv'], true) . ';
+        ' . (isset($_SERVER['argc']) ? '$_SERVER["argc"] = ' . var_export($_SERVER['argc'], true) . ';' : '') . '
+        ' . (isset($_SERVER['argv']) ? '$_SERVER["argv"] = ' . var_export($_SERVER['argv'], true) . ';' : '') . '
+        ' . (isset($GLOBALS['argc']) ? '$GLOBALS["argc"] = ' . var_export($GLOBALS['argc'], true) . ';' : '') . '
+        ' . (isset($GLOBALS['argv']) ? '$GLOBALS["argv"] = ' . var_export($GLOBALS['argv'], true) . ';' : '') . '
         require ' . var_export(debug_backtrace()[0]['file'], true) . ';
       ');
 
@@ -44,11 +47,14 @@ class Internal {
       $output = fopen('php://stdout', 'w');
       $error = fopen('php://stderr', 'w');
 
-      $process->run(function ($type, $buffer) use ($output, $error) {
+      $hasSuccessfullyRun = false;
+
+      $process->run(function ($type, $buffer) use ($output, $error, &$hasSuccessfullyRun) {
         if ($type == \Symfony\Component\Process\Process::OUT)
           fwrite($output, $buffer);
         if ($type == \Symfony\Component\Process\Process::ERR)
           fwrite($error, $buffer);
+        $hasSuccessfullyRun = true;
       });
 
       /**
@@ -58,7 +64,7 @@ class Internal {
        * If it's not successful the parent process does not exit and
        * continues to fallback with XDebug.
        */
-      if ($process->isSuccessful())
+      if ($process->isSuccessful() || $hasSuccessfullyRun)
         exit;
 
   }

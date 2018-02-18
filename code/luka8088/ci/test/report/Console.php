@@ -44,7 +44,7 @@ class Console {
       . "\x1b[37m"
       . $test['name']
       . "\x1b[0m"
-      . ($message ? "\n    " . str_replace("\n", "\n    ", $message) : '')
+      . ($message && $test['status'] != 'success' ? "\n    " . str_replace("\n", "\n    ", $message) : '')
       . "\n"
     , false, OutputInterface::OUTPUT_RAW);
     $this->previousTest = $test;

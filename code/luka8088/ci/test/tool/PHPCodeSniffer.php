@@ -46,8 +46,26 @@ class PHPCodeSniffer {
 
     $phpExecutableFinder = new PhpExecutableFinder();
 
+    $phpCommand = $phpExecutableFinder->find();
+
+    /**
+     * Don't load the default ini file to disable XDebug.
+     * It seems that XDebug can't be disabled during runtime, nor can an extension
+     * defined in the php.ini be excluded from loading with parameters.
+     * So far this seems to be the only way not to load XDebug.
+     */
+    $phpCommand .= ' -n';
+
+    /**
+     * For some reason these two extensions are not statically linked
+     * on *nix systems so we need to load the explicitly since
+     * the default ini file is not loaded.
+     */
+    if (PHP_SHLIB_SUFFIX == 'so')
+      $phpCommand .= ' -dextension=tokenizer.so -dextension=json.so';
+
     $process = new Process(
-      $phpExecutableFinder->find()
+      $phpCommand
       . ' ' . escapeshellarg($executable)
       . ' ' . implode(' ', array_map('escapeshellarg', op\metaContext(Application::class)->paths))
       . ' ' . '--standard=' . escapeshellarg($this->configuration)

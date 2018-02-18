@@ -3,6 +3,7 @@
 namespace luka8088\ci\test\tool;
 
 use \Exception;
+use \luka8088\ci\SymbolFinder;
 use \luka8088\ci\test\Result;
 use \luka8088\phops as op;
 use \SimpleXMLElement;
@@ -44,6 +45,9 @@ class PHPUnit {
     $testReportFile = tmpfile();
     $testReportFileInfo = stream_get_meta_data($testReportFile);
 
+    $coverageReportFile = tmpfile();
+    $coverageReportFileInfo = stream_get_meta_data($coverageReportFile);
+
     $phpExecutableFinder = new PhpExecutableFinder();
 
     $process = new Process(
@@ -53,6 +57,9 @@ class PHPUnit {
       . ' ' . '--log-junit ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
         ? '"' . addcslashes($testReportFileInfo['uri'], '\\"') . '"'
         : escapeshellarg($testReportFileInfo['uri']))
+      . ' ' . '--coverage-clover ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
+        ? '"' . addcslashes($coverageReportFileInfo['uri'], '\\"') . '"'
+        : escapeshellarg($coverageReportFileInfo['uri']))
     );
 
     $process->setTimeout(null);
@@ -95,6 +102,44 @@ class PHPUnit {
         $testName,
         implode("\n", array_unique($message))
       );
+
+    $symbolFinder = new SymbolFinder();
+
+    libxml_use_internal_errors(true);
+    rewind($coverageReportFile);
+    $coverageReportSource = stream_get_contents($coverageReportFile);
+
+    if (!$coverageReportSource)
+      op\metaContext(Result::class)->addTest(
+        'error',
+        'PHPUnit Code Coverage: Report',
+        'PHPUnit Code Coverage: Unable to generate report.'
+      );
+
+    if ($coverageReportSource) {
+      $coverageReport = new SimpleXMLElement($coverageReportSource);
+      $symbolCoverageMap = [];
+      foreach ($coverageReport->xpath(".//file") as $file)
+        foreach ($file->xpath(".//line[@type=\"stmt\"]") as $lineCoverage) {
+          $symbolLocation = $symbolFinder->findByLocation(
+            $file->attributes()->name->__toString(),
+            $lineCoverage->attributes()->num->__toString(),
+            0
+          );
+          if (!isset($symbolCoverageMap[$symbolLocation]))
+            $symbolCoverageMap[$symbolLocation] = [];
+          $symbolCoverageMap[$symbolLocation][] = $lineCoverage->attributes()->count->__toString();
+        }
+
+      foreach ($symbolCoverageMap as $symbol => $symbolCoverage) {
+        $coverage = count(array_filter($symbolCoverage)) / count($symbolCoverage);
+        op\metaContext(Result::class)->addTest(
+          $coverage < 1 ? 'failure' : 'success',
+          'PHPUnit Code Coverage: Code coverage for ' . $symbol,
+          'Code coverage is ' . number_format($coverage * 100, 2) . '%.'
+        );
+      }
+    }
 
   }
 
