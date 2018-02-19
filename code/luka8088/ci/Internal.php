@@ -2,6 +2,9 @@
 
 namespace luka8088\ci;
 
+use \Symfony\Component\Process\PhpExecutableFinder;
+use \Symfony\Component\Process\Process;
+
 class Internal {
 
   /**
@@ -11,38 +14,64 @@ class Internal {
    */
   static function disableXDebug()
   {
-      if (isset($GLOBALS["__xdebug_disable_attempt_made"]))
+
+      if (getenv('xDebugDisableAttemptMade')) {
+        putenv('PHP_INI_SCAN_DIR' . (getenv('PHP_INI_SCAN_DIR_BACKUP') ? '=' . getenv('PHP_INI_SCAN_DIR_BACKUP') : ''));
+        putenv('PHP_INI_SCAN_DIR_BACKUP');
+        putenv('xDebugDisableAttemptMade');
         return;
+      }
 
       if (!in_array('xdebug', array_map(function ($name) { return strtolower($name); }, get_loaded_extensions(true))))
         return;
 
-      $process = new \Symfony\Component\Process\PhpProcess('<?php
-        $GLOBALS["__xdebug_disable_attempt_made"] = true;
-        ' . (isset($_SERVER['argc']) ? '$_SERVER["argc"] = ' . var_export($_SERVER['argc'], true) . ';' : '') . '
-        ' . (isset($_SERVER['argv']) ? '$_SERVER["argv"] = ' . var_export($_SERVER['argv'], true) . ';' : '') . '
-        ' . (isset($GLOBALS['argc']) ? '$GLOBALS["argc"] = ' . var_export($GLOBALS['argc'], true) . ';' : '') . '
-        ' . (isset($GLOBALS['argv']) ? '$GLOBALS["argv"] = ' . var_export($GLOBALS['argv'], true) . ';' : '') . '
-        require ' . var_export(debug_backtrace()[0]['file'], true) . ';
-      ');
+      $phpExecutableFinder = new PhpExecutableFinder();
 
-      $process->setTimeout(null);
+      $loadedINI = Internal::loadedINI();
+
+      $alteredINI = $loadedINI;
 
       /**
-       * Don't load the default ini file. This is the main reason why we are running
+       * Remove xdebug from ini file. This is the main reason why we are running
        * a sub-process in the first place - to disable XDebug.
        * It seems that XDebug can't be disabled during runtime, nor can an extension
        * defined in the php.ini be excluded from loading with parameters.
        * So far this seems to be the only way not to load XDebug.
+       *
+       * Examples:
+       *   zend_extension=/usr/lib64/php/modules/xdebug.so
+       *   zend_extension=php_xdebug.dll
        */
-      $process->setCommandLine($process->getCommandLine() . ' -n');
+      $alteredINI = preg_replace(
+        '/(?s)(\A|(?<=\n))zend_extension[ \t]*\=[ \t]*[A-Za-z0-9\\\\\/\_\.]*(php_)?xdebug\.(so|dll)/',
+        '',
+        $alteredINI
+      );
 
-      /**
-       * For some reason these two extensions are not statically linked
-       * on *nix systems so we need to load the explicitly.
-       */
-      if (PHP_SHLIB_SUFFIX == 'so')
-        $process->setCommandLine($process->getCommandLine() . ' -dextension=tokenizer.so -dextension=json.so -dextension=simplexml.so -dextension=xml.so -dextension=xmlwriter.so -dextension=iconv.so');
+      $alteredINIFile = tmpfile();
+      fwrite($alteredINIFile, $alteredINI);
+      $alteredINIFileInfo = stream_get_meta_data($alteredINIFile);
+
+      $process = new Process(
+        $phpExecutableFinder->find()
+        . ' ' . '-c ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
+          ? '"' . addcslashes($alteredINIFileInfo['uri'], '\\"') . '"'
+          : escapeshellarg($alteredINIFileInfo['uri']))
+        . ' ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
+          ? '"' . addcslashes(debug_backtrace()[0]['file'], '\\"') . '"'
+          : escapeshellarg(debug_backtrace()[0]['file']))
+        . ' ' . implode(' ', array_slice($GLOBALS['argv'], 1))
+      );
+
+      $process->setEnv([
+        'PHP_INI_SCAN_DIR' => '',
+        'PHP_INI_SCAN_DIR_BACKUP' => getenv('PHP_INI_SCAN_DIR'),
+        'xDebugDisableAttemptMade' => '1',
+      ]);
+
+      $process->inheritEnvironmentVariables(true);
+
+      $process->setTimeout(null);
 
       $output = fopen('php://stdout', 'w');
       $error = fopen('php://stderr', 'w');
@@ -66,6 +95,22 @@ class Internal {
        */
       if ($process->isSuccessful() || $hasSuccessfullyRun)
         exit;
+
+  }
+
+  static function loadedINI () {
+
+    $loadedINIFiles = [];
+
+    if (is_file(php_ini_loaded_file()))
+      $loadedINIFiles[] = php_ini_loaded_file();
+
+    if (php_ini_scanned_files())
+      foreach (preg_split('/(?s)[ \t\r\n]*,[ \t\r\n]*/', php_ini_scanned_files()) as $loadedINIFile)
+        if (is_file(trim($loadedINIFile)))
+          $loadedINIFiles[] = trim($loadedINIFile);
+
+    return implode("\n", array_map('file_get_contents', $loadedINIFiles));
 
   }
 

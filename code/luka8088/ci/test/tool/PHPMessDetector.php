@@ -4,6 +4,7 @@ namespace luka8088\ci\test\tool;
 
 use \Exception;
 use \luka8088\ci\Application;
+use \luka8088\ci\Internal;
 use \luka8088\ci\SymbolFinder;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
@@ -46,32 +47,48 @@ class PHPMessDetector {
 
     $phpExecutableFinder = new PhpExecutableFinder();
 
-    $phpCommand = $phpExecutableFinder->find();
+    $loadedINI = Internal::loadedINI();
+
+    $alteredINI = $loadedINI;
 
     /**
-     * Don't load the default ini file to disable XDebug.
+     * Remove xdebug from ini file. This is the main reason why we are running
+     * a sub-process in the first place - to disable XDebug.
      * It seems that XDebug can't be disabled during runtime, nor can an extension
      * defined in the php.ini be excluded from loading with parameters.
      * So far this seems to be the only way not to load XDebug.
+     *
+     * Examples:
+     *   zend_extension=/usr/lib64/php/modules/xdebug.so
+     *   zend_extension=php_xdebug.dll
      */
-    $phpCommand .= ' -n';
+    $alteredINI = preg_replace(
+      '/(?is)(\A|(?<=\n))zend_extension[ \t]*\=[ \t]*[a-z0-9\\\\\/\_\.]*(php_)xdebug\.(so|dll)/',
+      '',
+      $alteredINI
+    );
 
-    /**
-     * For some reason these two extensions are not statically linked
-     * on *nix systems so we need to load the explicitly since
-     * the default ini file is not loaded.
-     */
-    if (PHP_SHLIB_SUFFIX == 'so')
-      $phpCommand .= ' -dextension=tokenizer.so -dextension=json.so -dextension=simplexml.so -dextension=xml.so -dextension=xmlwriter.so -dextension=ctype.so -dextension=dom.so -dextension=iconv.so';
+    $alteredINIFile = tmpfile();
+    fwrite($alteredINIFile, $alteredINI);
+    $alteredINIFileInfo = stream_get_meta_data($alteredINIFile);
 
     $process = new Process(
-      $phpCommand
+      $phpExecutableFinder->find()
+      . ' ' . '-c ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
+        ? '"' . addcslashes($alteredINIFileInfo['uri'], '\\"') . '"'
+        : escapeshellarg($alteredINIFileInfo['uri']))
       . ' ' . escapeshellarg($executable)
       . ' ' . escapeshellarg(implode(',', op\metaContext(Application::class)->paths))
       . ' ' . 'xml'
       . ' ' . escapeshellarg($this->configuration)
       . ' ' . '--ignore-violations-on-exit'
     );
+
+    $process->setEnv([
+      'PHP_INI_SCAN_DIR' => '',
+    ]);
+
+    $process->inheritEnvironmentVariables(true);
 
     $process->setTimeout(null);
 

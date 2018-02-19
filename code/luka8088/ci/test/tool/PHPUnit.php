@@ -70,7 +70,12 @@ class PHPUnit {
     $testStatusMap = [];
     libxml_use_internal_errors(true);
     rewind($testReportFile);
-    $phpunitReport = new SimpleXMLElement(stream_get_contents($testReportFile));
+    $testReport = stream_get_contents($testReportFile);
+
+    if (!$testReport)
+      throw new Exception('Error while running PHPUnit: ' . $process->getErrorOutput() . $process->getOutput());
+
+    $phpunitReport = new SimpleXMLElement($testReport);
 
     foreach ($phpunitReport->xpath('.//testsuite') as $testsuite)
       foreach ($testsuite->xpath('./testcase') as $testcase) {
