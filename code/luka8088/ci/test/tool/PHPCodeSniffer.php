@@ -62,7 +62,7 @@ class PHPCodeSniffer {
      * the default ini file is not loaded.
      */
     if (PHP_SHLIB_SUFFIX == 'so')
-      $phpCommand .= ' -dextension=tokenizer.so -dextension=json.so';
+      $phpCommand .= ' -dextension=tokenizer.so -dextension=json.so -dextension=simplexml.so -dextension=xml.so -dextension=xmlwriter.so -dextension=iconv.so';
 
     $process = new Process(
       $phpCommand
@@ -79,7 +79,7 @@ class PHPCodeSniffer {
     $process->run();
 
     if (!$process->isSuccessful())
-      throw new Exception('Error while running PHP Code Sniffer: ' . $process->getErrorOutput());
+      throw new Exception('Error while running PHP Code Sniffer: ' . $process->getErrorOutput() . $process->getOutput());
 
     $testcaseMessageMap = [];
     libxml_use_internal_errors(true);

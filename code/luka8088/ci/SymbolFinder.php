@@ -32,7 +32,7 @@ class SymbolFinder {
             ? (
               strpos($tokens[$index - 1][1], "\n") !== false
                 ? 1 + strlen(substr($tokens[$index - 1][1], strrpos($tokens[$index - 1][1], "\n") + 1))
-                : $tokens[$index - 1][3] + strlen($tokens[$index - 1][1])
+                : (isset($tokens[$index - 1][3]) ? $tokens[$index - 1][3] : 0) + strlen($tokens[$index - 1][1])
               )
             : 1
           ;

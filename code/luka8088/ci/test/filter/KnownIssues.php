@@ -17,9 +17,9 @@ class KnownIssues {
         $this->knownIssues[] = $knownIssue;
   }
 
-  /** @ExtensionCall("luka8088.ci.test.issueFound") */
-  function issueFound ($issue, &$keep) {
-    if (in_array($issue['name'], $this->knownIssues))
+  /** @ExtensionCall("luka8088.ci.test.testFound") */
+  function testFound ($test, &$keep) {
+    if (in_array($test['name'], $this->knownIssues))
       $keep = false;
   }
 

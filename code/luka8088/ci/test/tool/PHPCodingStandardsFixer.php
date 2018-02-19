@@ -73,7 +73,7 @@ class PHPCodingStandardsFixer {
      * the default ini file is not loaded.
      */
     if (PHP_SHLIB_SUFFIX == 'so')
-      $phpCommand .= ' -dextension=tokenizer.so -dextension=json.so';
+      $phpCommand .= ' -dextension=tokenizer.so -dextension=json.so -dextension=simplexml.so -dextension=xml.so -dextension=xmlwriter.so -dextension=phar.so -dextension=iconv.so';
 
     $process = new Process(
       $phpCommand
@@ -93,7 +93,7 @@ class PHPCodingStandardsFixer {
     $process->run();
 
     if (!in_array($process->getExitCode(), [0, 4, 8]))
-      throw new Exception('Error while running PHP Coding Standards Fixer: ' . $process->getErrorOutput());
+      throw new Exception('Error while running PHP Coding Standards Fixer: ' . $process->getErrorOutput() . $process->getOutput());
 
     $phpcsfixerReport = json_decode($process->getOutput(), true);
 

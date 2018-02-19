@@ -42,7 +42,7 @@ class Internal {
        * on *nix systems so we need to load the explicitly.
        */
       if (PHP_SHLIB_SUFFIX == 'so')
-        $process->setCommandLine($process->getCommandLine() . ' -dextension=tokenizer.so -dextension=json.so');
+        $process->setCommandLine($process->getCommandLine() . ' -dextension=tokenizer.so -dextension=json.so -dextension=simplexml.so -dextension=xml.so -dextension=xmlwriter.so -dextension=iconv.so');
 
       $output = fopen('php://stdout', 'w');
       $error = fopen('php://stderr', 'w');

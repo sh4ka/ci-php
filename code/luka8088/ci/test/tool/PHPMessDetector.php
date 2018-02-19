@@ -62,7 +62,7 @@ class PHPMessDetector {
      * the default ini file is not loaded.
      */
     if (PHP_SHLIB_SUFFIX == 'so')
-      $phpCommand .= ' -dextension=tokenizer.so -dextension=json.so';
+      $phpCommand .= ' -dextension=tokenizer.so -dextension=json.so -dextension=simplexml.so -dextension=xml.so -dextension=xmlwriter.so -dextension=ctype.so -dextension=dom.so -dextension=iconv.so';
 
     $process = new Process(
       $phpCommand
@@ -78,7 +78,7 @@ class PHPMessDetector {
     $process->run();
 
     if (!$process->isSuccessful())
-      throw new Exception('Error while running PHP Mess Detector: ' . $process->getErrorOutput());
+      throw new Exception('Error while running PHP Mess Detector: ' . $process->getErrorOutput() . $process->getOutput());
 
     libxml_use_internal_errors(true);
     $phpmdReport = new SimpleXMLElement($process->getOutput());
