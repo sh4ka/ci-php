@@ -58,29 +58,8 @@ class PHPCodingStandardsFixer {
 
     $phpExecutableFinder = new PhpExecutableFinder();
 
-    $loadedINI = Internal::loadedINI();
-
-    $alteredINI = $loadedINI;
-
-    /**
-     * Remove xdebug from ini file. This is the main reason why we are running
-     * a sub-process in the first place - to disable XDebug.
-     * It seems that XDebug can't be disabled during runtime, nor can an extension
-     * defined in the php.ini be excluded from loading with parameters.
-     * So far this seems to be the only way not to load XDebug.
-     *
-     * Examples:
-     *   zend_extension=/usr/lib64/php/modules/xdebug.so
-     *   zend_extension=php_xdebug.dll
-     */
-    $alteredINI = preg_replace(
-      '/(?is)(\A|(?<=\n))zend_extension[ \t]*\=[ \t]*[a-z0-9\\\\\/\_\.]*(php_)xdebug\.(so|dll)/',
-      '',
-      $alteredINI
-    );
-
     $alteredINIFile = tmpfile();
-    fwrite($alteredINIFile, $alteredINI);
+    fwrite($alteredINIFile, Internal::disableINIXDebug(Internal::loadedINI()));
     $alteredINIFileInfo = stream_get_meta_data($alteredINIFile);
 
     $process = new Process(
