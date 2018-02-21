@@ -5,6 +5,7 @@ namespace luka8088\ci\test;
 use \Exception;
 use \luka8088\ci\Application;
 use \luka8088\ci\test\Result;
+use \luka8088\ExtensionCall;
 use \luka8088\ExtensionInterface;
 use \luka8088\phops as op;
 use \Symfony\Component\Console\Input\InputInterface;
@@ -20,15 +21,25 @@ class Command extends \Symfony\Component\Console\Command\Command {
         ->setHelp('Run code analysis and testing tools.')
         ->addOption('tool', null, InputOption::VALUE_OPTIONAL, 'Run only a specific tool.')
       ;
+      op\metaContext(ExtensionInterface::class)[] = [
+        /** @ExtensionCall('luka8088.ci.test.configureCommand') */ function ($command) {},
+      ];
+      op\metaContext(ExtensionInterface::class)['luka8088.ci.test.configureCommand']->__invoke($this);
     }
 
     protected function execute (InputInterface $input, OutputInterface $output) {
 
+      $inputMetaContext = op\metaContextCreateScoped(InputInterface::class, $input);
       $outputMetaContext = op\metaContextCreateScoped(OutputInterface::class, $output);
       $resultMetaContext = op\metaContextCreateScoped(Result::class, new Result());
 
       // @todo: Rething.
-      op\metaContext(Application::class)[] = new \luka8088\ci\test\report\Console();
+      $hasConsole = false;
+      foreach (op\metaContext(Application::class)->extensions as $extension)
+        if ($extension instanceof \luka8088\ci\test\report\Console)
+          $hasConsole = true;
+      if (!$hasConsole)
+        op\metaContext(Application::class)[] = new \luka8088\ci\test\report\Console();
 
       op\metaContext(ExtensionInterface::class)["luka8088.ci.test.begin"]->__invoke();
       op\metaContext(ExtensionInterface::class)["luka8088.ci.test.run"]->__invoke();

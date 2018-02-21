@@ -2,19 +2,38 @@
 
 namespace luka8088\ci\test\report;
 
+#use \luka8088\ci\Application;
 use \luka8088\ExtensionCall;
 use \luka8088\phops as op;
+use \Symfony\Component\Console\Input\InputInterface;
+use \Symfony\Component\Console\Input\InputOption;
 use \Symfony\Component\Console\Output\OutputInterface;
 
 class Console {
+
+  protected $issuesOnly = false;
 
   protected $previousTest = null;
   protected $successCount = 0;
   protected $failureCount = 0;
   protected $errorCount = 0;
 
+  function __construct ($options = []) {
+    if (isset($options['issuesOnly']))
+      $this->issuesOnly = $options['issuesOnly'];
+  }
+
+  /** @ExtensionCall('luka8088.ci.test.configureCommand') */
+  function configureCommand ($command) {
+    $command
+      ->addOption('show-all', null, InputOption::VALUE_NONE, 'Show all tests in the console output.')
+    ;
+  }
+
   /** @ExtensionCall("luka8088.ci.test.begin") */
   function begin () {
+    if (op\metaContext(InputInterface::class)->getOption('show-all', false))
+      $this->issuesOnly = false;
     op\metaContext(OutputInterface::class)->write("\n  Running tests ...\n");
     $this->previousTest = null;
     $this->successCount = 0;
@@ -29,6 +48,8 @@ class Console {
       case 'failure': $this->failureCount += 1; break;
       case 'success': $this->successCount += 1; break;
     }
+    if ($this->issuesOnly && $test['status'] == 'success')
+      return;
     $message = trim(preg_replace_callback('/(?i)((http|https)\:\/\/[^ \t\r\n\(\)\<\>\*\;]+)/', function ($match) {
         return "\x1b[93m" . $match[1] . "\x1b[0m";
     }, $test['message']));

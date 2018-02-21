@@ -24,21 +24,24 @@ class Application extends \Symfony\Component\Console\Application implements Arra
     $this->extensionInterface = new ExtensionInterface();
 
     $this->extensionInterface[] = [
-      /** @ExtensionCall("luka8088.ci.test.begin") */ function () {},
-      /** @ExtensionCall("luka8088.ci.test.end") */ function () {},
-      /** @ExtensionCall("luka8088.ci.test.run") */ function () {},
-      /** @ExtensionCall("luka8088.ci.test.testFound") */ function ($test, &$keep = true) {},
-      /** @ExtensionCall("luka8088.ci.test.testReport") */ function ($issue) {},
+      /** @ExtensionCall('luka8088.ci.test.begin') */ function () {},
+      /** @ExtensionCall('luka8088.ci.test.end') */ function () {},
+      /** @ExtensionCall('luka8088.ci.test.run') */ function () {},
+      /** @ExtensionCall('luka8088.ci.test.testFound') */ function ($test, &$keep = true) {},
+      /** @ExtensionCall('luka8088.ci.test.testReport') */ function ($issue) {},
     ];
-
-    $this->add(new \luka8088\ci\test\Command());
 
   }
 
   function doRun (InputInterface $input = null, OutputInterface $output = null) {
+
     $applicationMetaContext = op\metaContextCreateScoped(Application::class, $this);
     $extensionInterfaceMetaContext = op\metaContextCreateScoped(ExtensionInterface::class, $this->extensionInterface);
+
+    $this->add(new \luka8088\ci\test\Command());
+
     return parent::doRun($input, $output);
+
   }
 
   /**
