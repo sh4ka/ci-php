@@ -67,6 +67,7 @@ class PHPCodingStandardsFixer {
       . ' ' . '-c ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
         ? '"' . addcslashes($alteredINIFileInfo['uri'], '\\"') . '"'
         : escapeshellarg($alteredINIFileInfo['uri']))
+      . ' ' . '-dzend.enable_gc=0'
       . ' ' . escapeshellarg($executable)
       . ' ' . 'fix'
       . ' ' . '--config ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
