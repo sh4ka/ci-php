@@ -83,9 +83,11 @@ class Console {
     op\metaContext(OutputInterface::class)->write(
       "\n  "
       . ($this->errorCount > 0 ? "\x1b[91m❗" : ($this->failureCount > 0 ? "\x1b[91m✖" : ($this->successCount > 0 ? "\x1b[92m✔" : "\x1b[93m❓")))
-      . " Done with " . $this->successCount . " success(es), "
-      . $this->failureCount . " failure(s) and "
-      . $this->errorCount . " error(s).\n\n"
+      . " Done with "
+      . $this->failureCount . " failure(s), "
+      . $this->errorCount . " error(s) and "
+      . $this->successCount . " success(es)."
+      . "\n\n"
       . "\x1b[0m"
     );
   }
