@@ -2,8 +2,6 @@
 
 namespace luka8088\ci;
 
-use \Symfony\Component\Process\PhpExecutableFinder;
-
 class Internal {
 
   /**
@@ -24,14 +22,13 @@ class Internal {
       if (!in_array('xdebug', array_map(function ($name) { return strtolower($name); }, get_loaded_extensions(true))))
         return;
 
-      $phpExecutableFinder = new PhpExecutableFinder();
-
       $alteredINIFile = tmpfile();
       fwrite($alteredINIFile, Internal::disableINIXDebug(Internal::loadedINI()));
       $alteredINIFileInfo = stream_get_meta_data($alteredINIFile);
 
       $process = proc_open(
-        $phpExecutableFinder->find()
+        (PHP_BINARY ? PHP_BINARY : PHP_BINDIR . '/php')
+        . (PHP_SAPI == 'phpdbg' ? ' -qrr' : '')
         . ' ' . '-c ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
           ? '"' . addcslashes($alteredINIFileInfo['uri'], '\\"') . '"'
           : escapeshellarg($alteredINIFileInfo['uri']))
