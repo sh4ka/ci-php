@@ -39,6 +39,7 @@ class Application extends \Symfony\Component\Console\Application implements Arra
     $applicationMetaContext = op\metaContextCreateScoped(Application::class, $this);
     $extensionInterfaceMetaContext = op\metaContextCreateScoped(ExtensionInterface::class, $this->extensionInterface);
 
+    $this->add(new \luka8088\ci\cli\Command());
     $this->add(new \luka8088\ci\test\Command());
 
     return parent::doRun($input, $output);
