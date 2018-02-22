@@ -86,10 +86,15 @@ class PHPMessDetector {
 
     foreach ($phpmdReport->file as $file) {
       foreach ($file->xpath(".//violation") as $violation) {
+        $fileSymbol = ltrim(str_replace('\\', '/', substr(
+          realpath($file->attributes()->name->__toString()),
+          strlen(realpath(op\metaContext(Application::class)->rootPath))
+        )), '/');
         $testcaseName = $violation->attributes()->rule->__toString() . " at " . $symbolFinder->findByLocation(
           $file->attributes()->name->__toString(),
           $violation->attributes()->beginline->__toString(),
-          0
+          0,
+          $fileSymbol
         );
         if (!isset($testcaseMessageMap[$testcaseName]))
           $testcaseMessageMap[$testcaseName] = [];

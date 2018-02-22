@@ -34,6 +34,7 @@ while ($codePath && $codePath != dirname($codePath)) {
 
 if (is_file($codePath . '/ci.configuration.php')) {
 
+  $ci->setRootPath($codePath);
   $configurator = require($codePath . '/ci.configuration.php');
   $configurator($ci);
 

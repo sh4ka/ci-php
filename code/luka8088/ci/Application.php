@@ -14,6 +14,7 @@ class Application extends \Symfony\Component\Console\Application implements Arra
   /** @internal */
   protected $extensionInterface = null;
 
+  public $rootPath = '';
   public $extensions = [];
   public $paths = [];
 
@@ -42,6 +43,10 @@ class Application extends \Symfony\Component\Console\Application implements Arra
 
     return parent::doRun($input, $output);
 
+  }
+
+  function setRootPath ($path) {
+    $this->rootPath = $path;
   }
 
   /**

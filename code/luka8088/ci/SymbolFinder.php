@@ -6,7 +6,7 @@ class SymbolFinder {
 
   protected $data = [];
 
-  function findByLocation ($file, $line, $column) {
+  function findByLocation ($file, $line, $column, $fileSymbol) {
     if (!isset($this->data[$file . ":maxColumn"])) {
       if (is_file($file)) {
         static $nameTokens = [T_WHITESPACE, T_STRING, T_NS_SEPARATOR];
@@ -139,7 +139,9 @@ class SymbolFinder {
     for ($scanLine = $line; $scanLine > 0; $scanLine -= 1)
       for ($scanColumn = $this->data[$file . ":maxColumn"]; $scanColumn > 0; $scanColumn -= 1)
         if (isset($this->data[$file . ":" . $scanLine . ":" . $scanColumn]))
-          return $this->data[$file . ":" . $scanLine . ":" . $scanColumn];
-    return $file;
+          return $this->data[$file . ":" . $scanLine . ":" . $scanColumn]
+            ? $this->data[$file . ":" . $scanLine . ":" . $scanColumn]
+            : ($fileSymbol ? $fileSymbol : $file);
+    return $fileSymbol ? $fileSymbol : $file;
   }
 }

@@ -3,6 +3,7 @@
 namespace luka8088\ci\test\tool;
 
 use \Exception;
+use \luka8088\ci\Application;
 use \luka8088\ci\SymbolFinder;
 use \luka8088\ci\test\Result;
 use \luka8088\phops as op;
@@ -127,10 +128,15 @@ class PHPUnit {
       $symbolCoverageMap = [];
       foreach ($coverageReport->xpath(".//file") as $file)
         foreach ($file->xpath(".//line[@type=\"stmt\"]") as $lineCoverage) {
+          $fileSymbol = ltrim(str_replace('\\', '/', substr(
+            realpath($file->attributes()->name->__toString()),
+            strlen(realpath(op\metaContext(Application::class)->rootPath))
+          )), '/');
           $symbolLocation = $symbolFinder->findByLocation(
             $file->attributes()->name->__toString(),
             $lineCoverage->attributes()->num->__toString(),
-            0
+            0,
+            $fileSymbol
           );
           if (!isset($symbolCoverageMap[$symbolLocation]))
             $symbolCoverageMap[$symbolLocation] = [];

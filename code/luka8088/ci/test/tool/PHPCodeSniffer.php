@@ -95,7 +95,11 @@ class PHPCodeSniffer {
         ((?:[ \t]*[\:\)])?)
       /x";
       $testcaseName = preg_replace_callback($regex, function ($match) use ($symbolFinder) {
-        return $match[1] . $symbolFinder->findByLocation($match[2], $match[4], $match[6]);
+        $fileSymbol = ltrim(str_replace('\\', '/', substr(
+          realpath($match[2]),
+          strlen(realpath(op\metaContext(Application::class)->rootPath))
+        )), '/');
+        return $match[1] . $symbolFinder->findByLocation($match[2], $match[4], $match[6], $fileSymbol);
       }, $testcase->attributes()->name->__toString());
       foreach ($testcase->xpath(".//failure") as $failure) {
         if (!isset($testcaseMessageMap[$testcaseName]))
