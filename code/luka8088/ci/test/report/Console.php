@@ -11,7 +11,7 @@ use \Symfony\Component\Console\Output\OutputInterface;
 
 class Console {
 
-  protected $issuesOnly = false;
+  protected $showSuccesses = true;
 
   protected $previousTest = null;
   protected $successCount = 0;
@@ -19,21 +19,28 @@ class Console {
   protected $errorCount = 0;
 
   function __construct ($options = []) {
-    if (isset($options['issuesOnly']))
-      $this->issuesOnly = $options['issuesOnly'];
+    if (isset($options['showSuccesses']))
+      $this->showSuccesses = $options['showSuccesses'];
   }
 
   /** @ExtensionCall('luka8088.ci.test.configureCommand') */
   function configureCommand ($command) {
     $command
-      ->addOption('show-all', null, InputOption::VALUE_NONE, 'Show all tests in the console output.')
+      ->addOption('show-successes', null, InputOption::VALUE_OPTIONAL, 'Show successful tests in the console output.')
     ;
   }
 
   /** @ExtensionCall("luka8088.ci.test.begin") */
   function begin () {
-    if (op\metaContext(InputInterface::class)->getOption('show-all', false))
-      $this->issuesOnly = false;
+    $showSuccesses = filter_var(
+      op\metaContext(InputInterface::class)->getOption('show-successes') !== null
+        ? op\metaContext(InputInterface::class)->getOption('show-successes')
+        : 'x',
+      FILTER_VALIDATE_BOOLEAN,
+      FILTER_NULL_ON_FAILURE
+    );
+    if (is_bool($showSuccesses))
+      $this->showSuccesses = $showSuccesses;
     op\metaContext(OutputInterface::class)->write("\n  Running tests ...\n");
     $this->previousTest = null;
     $this->successCount = 0;
@@ -48,7 +55,7 @@ class Console {
       case 'failure': $this->failureCount += 1; break;
       case 'success': $this->successCount += 1; break;
     }
-    if ($this->issuesOnly && $test['status'] == 'success')
+    if ($test['status'] == 'success' && !$this->showSuccesses)
       return;
     $message = trim(preg_replace_callback('/(?i)((http|https)\:\/\/[^ \t\r\n\(\)\<\>\*\;]+)/', function ($match) {
         return "\x1b[93m" . $match[1] . "\x1b[0m";
