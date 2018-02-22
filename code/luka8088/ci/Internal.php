@@ -3,7 +3,6 @@
 namespace luka8088\ci;
 
 use \Symfony\Component\Process\PhpExecutableFinder;
-use \Symfony\Component\Process\Process;
 
 class Internal {
 
@@ -31,7 +30,7 @@ class Internal {
       fwrite($alteredINIFile, Internal::disableINIXDebug(Internal::loadedINI()));
       $alteredINIFileInfo = stream_get_meta_data($alteredINIFile);
 
-      $process = new Process(
+      $process = proc_open(
         $phpExecutableFinder->find()
         . ' ' . '-c ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
           ? '"' . addcslashes($alteredINIFileInfo['uri'], '\\"') . '"'
@@ -39,41 +38,24 @@ class Internal {
         . ' ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
           ? '"' . addcslashes(debug_backtrace()[0]['file'], '\\"') . '"'
           : escapeshellarg(debug_backtrace()[0]['file']))
-        . ' ' . implode(' ', array_slice($GLOBALS['argv'], 1))
+        . ' ' . implode(' ', array_slice($GLOBALS['argv'], 1)),
+        [
+          0 => fopen('php://stdin', 'r'),
+          1 => fopen('php://stdout', 'w'),
+          2 => fopen('php://stderr', 'w'),
+        ],
+        $pipes,
+        null,
+        array_filter($_SERVER + [
+          'PHP_INI_SCAN_DIR' => '',
+          'PHP_INI_SCAN_DIR_BACKUP' => getenv('PHP_INI_SCAN_DIR'),
+          'xDebugDisableAttemptMade' => '1',
+        ], function ($value) { return !is_array($value); })
       );
 
-      $process->setEnv([
-        'PHP_INI_SCAN_DIR' => '',
-        'PHP_INI_SCAN_DIR_BACKUP' => getenv('PHP_INI_SCAN_DIR'),
-        'xDebugDisableAttemptMade' => '1',
-      ]);
+      $exitCode = proc_close($process);
 
-      $process->inheritEnvironmentVariables(true);
-
-      $process->setTimeout(null);
-
-      $output = fopen('php://stdout', 'w');
-      $error = fopen('php://stderr', 'w');
-
-      $hasSuccessfullyRun = false;
-
-      $process->run(function ($type, $buffer) use ($output, $error, &$hasSuccessfullyRun) {
-        if ($type == \Symfony\Component\Process\Process::OUT)
-          fwrite($output, $buffer);
-        if ($type == \Symfony\Component\Process\Process::ERR)
-          fwrite($error, $buffer);
-        $hasSuccessfullyRun = true;
-      });
-
-      /**
-       * In case the sub process is successful it runs the original
-       * code - without XDebug.
-       * In that case continuing to execute would produce a duplicate.
-       * If it's not successful the parent process does not exit and
-       * continues to fallback with XDebug.
-       */
-      if ($process->isSuccessful() || $hasSuccessfullyRun)
-        exit;
+      exit($exitCode);
 
   }
 
