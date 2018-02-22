@@ -52,7 +52,7 @@ class PHPUnit {
 
     $process = new Process(
       $phpExecutableFinder->find()
-      . ' ' . '-dzend.enable_gc=0'
+      #. ' ' . '-dzend.enable_gc=0'
       . ' ' . escapeshellarg($executable)
       . ' ' . '--configuration ' . escapeshellarg($this->configuration)
       . ' ' . '--log-junit ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'

@@ -56,7 +56,7 @@ class PHPMessDetector {
       . ' ' . '-c ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
         ? '"' . addcslashes($alteredINIFileInfo['uri'], '\\"') . '"'
         : escapeshellarg($alteredINIFileInfo['uri']))
-      . ' ' . '-dzend.enable_gc=0'
+      #. ' ' . '-dzend.enable_gc=0'
       . ' ' . escapeshellarg($executable)
       . ' ' . escapeshellarg(implode(',', op\metaContext(Application::class)->paths))
       . ' ' . 'xml'
