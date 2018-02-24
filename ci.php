@@ -26,6 +26,9 @@ while ($codePath && $codePath != dirname($codePath)) {
   if (is_file($codePath . '/ci.configuration.php')) {
     break;
   }
+  if (is_file($codePath . '/ci.configuration.distributed.php')) {
+    break;
+  }
   if (is_file($codePath . '/composer.json')) {
     break;
   }
@@ -36,6 +39,12 @@ if (is_file($codePath . '/ci.configuration.php')) {
 
   $ci->setRootPath($codePath);
   $configurator = require($codePath . '/ci.configuration.php');
+  $configurator($ci);
+
+} else if (is_file($codePath . '/ci.configuration.distributed.php')) {
+
+  $ci->setRootPath($codePath);
+  $configurator = require($codePath . '/ci.configuration.distributed.php');
   $configurator($ci);
 
 }
