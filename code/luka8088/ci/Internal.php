@@ -44,7 +44,7 @@ class Internal {
         $pipes,
         null,
         array_filter($_SERVER + [
-          'PHP_INI_SCAN_DIR' => '',
+          'PHP_INI_SCAN_DIR' => '/dev/null',
           'PHP_INI_SCAN_DIR_BACKUP' => getenv('PHP_INI_SCAN_DIR'),
           'xDebugDisableAttemptMade' => '1',
         ], function ($value) { return !is_array($value); })
