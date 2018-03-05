@@ -97,13 +97,18 @@ class PHPCodingStandardsFixer {
     if (!is_array($phpcsfixerReport))
       throw new \Exception('Error while reading PHP CS Fixer report.');
 
-    foreach ($phpcsfixerReport["files"] as $file)
+    foreach ($phpcsfixerReport["files"] as $file) {
+      $filePath = $file["name"];
+      if (strpos(realpath($file["name"]), realpath(op\metaContext(Application::class)->rootPath)) === 0)
+        $filePath = ltrim(str_replace('\\', '/', substr(realpath($file["name"]),
+          strlen(realpath(op\metaContext(Application::class)->rootPath)))), '/');
       op\metaContext(Result::class)->addTest(
         'failure',
-        'PHP Coding Standards Fixer: Coding Standards in ' . str_replace('\\', '/', $file["name"]),
-        'Fixes that need to be applied: ' . implode(", ", $file["appliedFixers"])
-        . "\n" . $file["diff"]
+        'PHP Coding Standards Fixer: Coding Standards in ' . $filePath,
+        'Fixes that need to be applied: ' . implode(", ", $file["appliedFixers"]),
+        $file["diff"]
       );
+    }
 
     if (count($phpcsfixerReport["files"]) == 0)
       op\metaContext(Result::class)->addTest(

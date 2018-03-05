@@ -59,7 +59,9 @@ class Console {
       return;
     $message = trim(preg_replace_callback('/(?i)((http|https)\:\/\/[^ \t\r\n\(\)\<\>\*\;]+)/', function ($match) {
         return "\x1b[93m" . $match[1] . "\x1b[0m";
-    }, $test['message']));
+    }, $test['message'] . (op\metaContext(OutputInterface::class)->isVerbose() && $test['description']
+      ? "\n" . $test['description']
+      : '')));
     $hasSpacer
       = !$this->previousTest
       || in_array($this->previousTest['status'], ['error', 'failure'])

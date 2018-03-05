@@ -45,12 +45,12 @@ class JUnit {
           '      <testcase name="' .
                       self::xmlEncode(trim(substr($test['name'], strpos($test['name'], ': ') + 1))) . '">' . "\n" .
           ($test['status'] == 'failure'
-            ? '        <failure>' .
-                        self::xmlEncode($test['message']) .
+            ? '        <failure message="' . self::xmlEncode($test['message']) . '">' .
+                        self::xmlEncode($test['message'] . ($test['description'] ? "\n" . $test['description'] : '')) .
                       '</failure>' . "\n"
             : ($test['status'] == 'error'
-            ? '        <error>' .
-                        self::xmlEncode($test['message']) .
+            ? '        <error message="' . self::xmlEncode($test['message']) . '">' .
+                        self::xmlEncode($test['message'] . ($test['description'] ? "\n" . $test['description'] : '')) .
                       '</error>' . "\n"
             : ''
           )) .
