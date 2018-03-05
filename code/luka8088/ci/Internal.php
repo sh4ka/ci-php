@@ -26,6 +26,14 @@ class Internal {
       fwrite($alteredINIFile, Internal::disableINIXDebug(Internal::loadedINI()));
       $alteredINIFileInfo = stream_get_meta_data($alteredINIFile);
 
+      /**
+       * For some unknown reason the combination of OPCache and XDebug causes
+       * an error in the sub-process making it exit immediately.
+       * Reseting OPCache at this point addresses that.
+       */
+      if (function_exists('opcache_reset'))
+        opcache_reset();
+
       $process = proc_open(
         (PHP_BINARY ? PHP_BINARY : PHP_BINDIR . '/php')
         . (PHP_SAPI == 'phpdbg' ? ' -qrr' : '')
