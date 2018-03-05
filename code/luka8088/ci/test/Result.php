@@ -17,12 +17,9 @@ class Result {
       'message' => $message,
       'description' => $description,
     ]);
-    $keep = true;
-    op\metaContext(ExtensionInterface::class)["luka8088.ci.test.testFound"]->__invoke($test, $keep);
-    if ($keep) {
-      $this->tests[] = $test;
-      op\metaContext(ExtensionInterface::class)["luka8088.ci.test.testReport"]->__invoke($test);
-    }
+    op\metaContext(ExtensionInterface::class)["luka8088.ci.test.testFound"]->__invoke($test);
+    $this->tests[] = $test;
+    op\metaContext(ExtensionInterface::class)["luka8088.ci.test.testReport"]->__invoke($test);
   }
 
 }

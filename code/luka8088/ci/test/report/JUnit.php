@@ -28,6 +28,8 @@ class JUnit {
 
   /** @ExtensionCall("luka8088.ci.test.testReport") */
   function testReport ($test) {
+    if ($test['status'] == 'skipped')
+      return;
     $this->testToolMap[trim(substr($test['name'], 0, strpos($test['name'], ': ')))][] = $test;
   }
 

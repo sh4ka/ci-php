@@ -15,6 +15,7 @@ class Console {
 
   protected $previousTest = null;
   protected $successCount = 0;
+  protected $skippedCount = 0;
   protected $failureCount = 0;
   protected $errorCount = 0;
 
@@ -44,6 +45,7 @@ class Console {
     op\metaContext(OutputInterface::class)->write("\n  Running tests ...\n");
     $this->previousTest = null;
     $this->successCount = 0;
+    $this->skippedCount = 0;
     $this->failureCount = 0;
     $this->errorCount = 0;
   }
@@ -53,9 +55,12 @@ class Console {
     switch ($test['status']) {
       case 'error': $this->errorCount += 1; break;
       case 'failure': $this->failureCount += 1; break;
+      case 'skipped': $this->skippedCount += 1; break;
       case 'success': $this->successCount += 1; break;
     }
     if ($test['status'] == 'success' && !$this->showSuccesses)
+      return;
+    if ($test['status'] == 'skipped')
       return;
     $message = trim(preg_replace_callback('/(?i)((http|https)\:\/\/[^ \t\r\n\(\)\<\>\*\;]+)/', function ($match) {
         return "\x1b[93m" . $match[1] . "\x1b[0m";
@@ -87,7 +92,8 @@ class Console {
       . ($this->errorCount > 0 ? "\x1b[91m❗" : ($this->failureCount > 0 ? "\x1b[91m✖" : ($this->successCount > 0 ? "\x1b[92m✔" : "\x1b[93m❓")))
       . " Done with "
       . $this->failureCount . " failure(s), "
-      . $this->errorCount . " error(s) and "
+      . $this->errorCount . " error(s), "
+      . $this->skippedCount . " skipped and "
       . $this->successCount . " success(es)."
       . "\n\n"
       . "\x1b[0m"

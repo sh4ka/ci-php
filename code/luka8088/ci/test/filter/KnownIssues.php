@@ -18,9 +18,9 @@ class KnownIssues {
   }
 
   /** @ExtensionCall("luka8088.ci.test.testFound") */
-  function testFound ($test, &$keep) {
+  function testFound ($test) {
     if (in_array($test['name'], $this->knownIssues))
-      $keep = false;
+      $test['status'] = 'skipped';
   }
 
 }

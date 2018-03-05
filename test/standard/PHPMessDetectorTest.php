@@ -42,7 +42,7 @@ class PHPMessDetectorTest {
         code/source.php:4: Avoid unused local variables such as \'$bar\'.
         Rule documentation: https://phpmd.org/rules/unusedcode.html#unusedlocalvariable
 
-      ✖ Done with 1 failure(s), 0 error(s) and 0 success(es).
+      ✖ Done with 1 failure(s), 0 error(s), 0 skipped and 0 success(es).
 
     ');
 
