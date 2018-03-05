@@ -38,7 +38,7 @@ class PHPCodingStandardsFixerTest {
     $ci = ci\Test::create(function ($ci) {
       $ci[] = new ci\test\tool\PHPCodingStandardsFixer(sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/.php_cs.dist');
       $ci[] = new ci\test\filter\Path(function ($path, $line) { return $path . ($line ? ':' . $line : ''); });
-      $ci->setRootPath(sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/');
+      $ci->setParameter('rootPath', sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/');
       $ci->addPath(sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/code');
     });
 
@@ -89,7 +89,7 @@ class PHPCodingStandardsFixerTest {
     $ci = ci\Test::create(function ($ci) {
       $ci[] = new ci\test\tool\PHPCodingStandardsFixer(sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/.php_cs.dist');
       $ci[] = new ci\test\filter\Path(function ($path, $line) { return $path . ($line ? ':' . $line : ''); });
-      $ci->setRootPath(sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/');
+      $ci->setParameter('rootPath', sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/');
       $ci->addPath(sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/code');
     });
 

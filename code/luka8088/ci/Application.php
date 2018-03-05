@@ -3,10 +3,14 @@
 namespace luka8088\ci;
 
 use \ArrayAccess;
+use \Exception;
 use \luka8088\ExtensionCall;
 use \luka8088\ExtensionInterface;
 use \luka8088\phops as op;
+use \Symfony\Component\Console\Command\Command;
+use \Symfony\Component\Console\Input\InputDefinition;
 use \Symfony\Component\Console\Input\InputInterface;
+use \Symfony\Component\Console\Input\InputOption;
 use \Symfony\Component\Console\Output\OutputInterface;
 
 class Application extends \Symfony\Component\Console\Application implements ArrayAccess {
@@ -14,7 +18,8 @@ class Application extends \Symfony\Component\Console\Application implements Arra
   /** @internal */
   protected $extensionInterface = null;
 
-  public $rootPath = '';
+  public $configurations = [];
+  public $parameters = [];
   public $extensions = [];
   public $paths = [];
 
@@ -32,6 +37,21 @@ class Application extends \Symfony\Component\Console\Application implements Arra
       /** @ExtensionCall('luka8088.ci.test.testReport') */ function ($issue) {},
     ];
 
+    $this->getDefinition()->addOption(new InputOption(
+      '--configuration',
+      '-c',
+      InputOption::VALUE_OPTIONAL,
+      'Path to a configuration file.'
+    ));
+
+    $applicationMetaContext = op\metaContextCreateScoped(Application::class, $this);
+    $extensionInterfaceMetaContext = op\metaContextCreateScoped(ExtensionInterface::class, $this->extensionInterface);
+
+    $this->createParameter('rootPath', '');
+
+    $this->add(new \luka8088\ci\cli\Command());
+    $this->add(new \luka8088\ci\test\Command());
+
   }
 
   function doRun (InputInterface $input = null, OutputInterface $output = null) {
@@ -39,15 +59,38 @@ class Application extends \Symfony\Component\Console\Application implements Arra
     $applicationMetaContext = op\metaContextCreateScoped(Application::class, $this);
     $extensionInterfaceMetaContext = op\metaContextCreateScoped(ExtensionInterface::class, $this->extensionInterface);
 
-    $this->add(new \luka8088\ci\cli\Command());
-    $this->add(new \luka8088\ci\test\Command());
+    $configurationPath = $input->getParameterOption('-c')
+      ? $input->getParameterOption('-c')
+      : $input->getParameterOption('--configuration');
+    if ($configurationPath) {
+      if (!is_file($configurationPath))
+        throw new Exception('Configuration file *' . $configurationPath . '* not found.');
+      $this->configurations[] = $configurationPath;
+    }
+
+    foreach ($this->configurations as $configurationPath) {
+      $configurator = require($configurationPath);
+      $configurator($this);
+    }
 
     return parent::doRun($input, $output);
 
   }
 
-  function setRootPath ($path) {
-    $this->rootPath = $path;
+  function createParameter ($name, $value) {
+    if (isset($this->parameters[$name]))
+      throw new Exception('Parameter *' . $name . '* already created.');
+    $this->parameters[$name] = $value;
+  }
+
+  function setParameter ($name, $value) {
+    if (!isset($this->parameters[$name]))
+      throw new Exception('Parameter *' . $name . '* does not exist.');
+    $this->parameters[$name] = $value;
+  }
+
+  function getParameter ($name) {
+    return $this->parameters[$name];
   }
 
   /**

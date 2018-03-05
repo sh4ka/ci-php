@@ -99,9 +99,9 @@ class PHPCodingStandardsFixer {
 
     foreach ($phpcsfixerReport["files"] as $file) {
       $filePath = $file["name"];
-      if (strpos(realpath($file["name"]), realpath(op\metaContext(Application::class)->rootPath)) === 0)
+      if (strpos(realpath($file["name"]), realpath(op\metaContext(Application::class)->getParameter('rootPath'))) === 0)
         $filePath = ltrim(str_replace('\\', '/', substr(realpath($file["name"]),
-          strlen(realpath(op\metaContext(Application::class)->rootPath)))), '/');
+          strlen(realpath(op\metaContext(Application::class)->getParameter('rootPath'))))), '/');
       op\metaContext(Result::class)->addTest(
         'failure',
         'PHP Coding Standards Fixer: Coding Standards in ' . $filePath,

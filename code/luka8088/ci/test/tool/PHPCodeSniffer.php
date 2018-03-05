@@ -97,7 +97,7 @@ class PHPCodeSniffer {
       $testcaseName = preg_replace_callback($regex, function ($match) use ($symbolFinder) {
         $fileSymbol = ltrim(str_replace('\\', '/', substr(
           realpath($match[2]),
-          strlen(realpath(op\metaContext(Application::class)->rootPath))
+          strlen(realpath(op\metaContext(Application::class)->getParameter('rootPath')))
         )), '/');
         return $match[1] . $symbolFinder->findByLocation($match[2], $match[4], $match[6], $fileSymbol);
       }, $testcase->attributes()->name->__toString());

@@ -130,7 +130,7 @@ class PHPUnit {
         foreach ($file->xpath(".//line[@type=\"stmt\"]") as $lineCoverage) {
           $fileSymbol = ltrim(str_replace('\\', '/', substr(
             realpath($file->attributes()->name->__toString()),
-            strlen(realpath(op\metaContext(Application::class)->rootPath))
+            strlen(realpath(op\metaContext(Application::class)->getParameter('rootPath')))
           )), '/');
           $symbolLocation = $symbolFinder->findByLocation(
             $file->attributes()->name->__toString(),

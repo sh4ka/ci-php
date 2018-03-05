@@ -88,7 +88,7 @@ class PHPMessDetector {
       foreach ($file->xpath(".//violation") as $violation) {
         $fileSymbol = ltrim(str_replace('\\', '/', substr(
           realpath($file->attributes()->name->__toString()),
-          strlen(realpath(op\metaContext(Application::class)->rootPath))
+          strlen(realpath(op\metaContext(Application::class)->getParameter('rootPath')))
         )), '/');
         $testcaseName = $violation->attributes()->rule->__toString() . " at " . $symbolFinder->findByLocation(
           $file->attributes()->name->__toString(),

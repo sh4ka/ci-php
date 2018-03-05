@@ -19,34 +19,33 @@ ini_set('memory_limit', -1);
 
 \luka8088\phops\initializeStrictMode();
 
-$ci = new \luka8088\ci\Application();
+call_user_func(function () {
 
-$codePath = $cwd;
-while ($codePath && $codePath != dirname($codePath)) {
-  if (is_file($codePath . '/ci.configuration.php')) {
-    break;
+  $ci = new \luka8088\ci\Application();
+
+  $codePath = getcwd();
+  while ($codePath && $codePath != dirname($codePath)) {
+    if (is_file($codePath . '/ci.configuration.php')) {
+      break;
+    }
+    if (is_file($codePath . '/ci.configuration.distributed.php')) {
+      break;
+    }
+    if (is_file($codePath . '/composer.json')) {
+      break;
+    }
+    $codePath = dirname($codePath);
   }
-  if (is_file($codePath . '/ci.configuration.distributed.php')) {
-    break;
-  }
-  if (is_file($codePath . '/composer.json')) {
-    break;
-  }
-  $codePath = dirname($codePath);
-}
 
-if (is_file($codePath . '/ci.configuration.php')) {
+  if (strlen($codePath) > 2)
+    $ci->setParameter('rootPath', $codePath);
 
-  $ci->setRootPath($codePath);
-  $configurator = require($codePath . '/ci.configuration.php');
-  $configurator($ci);
+  if (is_file($codePath . '/ci.configuration.distributed.php'))
+    $ci->configurations[] = $codePath . '/ci.configuration.distributed.php';
 
-} else if (is_file($codePath . '/ci.configuration.distributed.php')) {
+  if (is_file($codePath . '/ci.configuration.php'))
+    $ci->configurations[] = $codePath . '/ci.configuration.php';
 
-  $ci->setRootPath($codePath);
-  $configurator = require($codePath . '/ci.configuration.distributed.php');
-  $configurator($ci);
+  $ci->run();
 
-}
-
-$ci->run();
+});

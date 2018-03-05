@@ -2,7 +2,7 @@
 
 namespace luka8088\ci\test\report;
 
-#use \luka8088\ci\Application;
+use \luka8088\ci\Application;
 use \luka8088\ExtensionCall;
 use \luka8088\phops as op;
 use \Symfony\Component\Console\Input\InputInterface;
@@ -19,13 +19,9 @@ class Console {
   protected $failureCount = 0;
   protected $errorCount = 0;
 
-  function __construct ($options = []) {
-    if (isset($options['showSuccesses']))
-      $this->showSuccesses = $options['showSuccesses'];
-  }
-
   /** @ExtensionCall('luka8088.ci.test.configureCommand') */
   function configureCommand ($command) {
+    op\metaContext(Application::class)->createParameter('console.showSuccesses', true);
     $command
       ->addOption('show-successes', null, InputOption::VALUE_OPTIONAL, 'Show successful tests in the console output.')
     ;
@@ -33,6 +29,7 @@ class Console {
 
   /** @ExtensionCall("luka8088.ci.test.begin") */
   function begin () {
+    $this->showSuccesses = op\metaContext(Application::class)->getParameter('console.showSuccesses');
     $showSuccesses = filter_var(
       op\metaContext(InputInterface::class)->getOption('show-successes') !== null
         ? op\metaContext(InputInterface::class)->getOption('show-successes')
