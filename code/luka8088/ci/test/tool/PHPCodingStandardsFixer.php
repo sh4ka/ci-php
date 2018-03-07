@@ -110,12 +110,11 @@ class PHPCodingStandardsFixer {
       );
     }
 
-    if (count($phpcsfixerReport["files"]) == 0)
-      op\metaContext(Result::class)->addTest(
-        count($phpcsfixerReport["files"]) == 0 ? 'success' : 'failure',
-        'PHP Coding Standards Fixer: General',
-        'No PHP Coding Standards Fixer issues found.'
-      );
+    op\metaContext(Result::class)->addTest(
+      'success',
+      'PHP Coding Standards Fixer: General',
+      'No PHP Coding Standards Fixer analysis complete.'
+    );
 
   }
 

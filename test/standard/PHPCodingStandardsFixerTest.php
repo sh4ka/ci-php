@@ -49,7 +49,9 @@ class PHPCodingStandardsFixerTest {
       ✖ PHP Coding Standards Fixer: Coding Standards in code/source.php
         Fixes that need to be applied: function_declaration, no_whitespace_in_blank_line, braces
 
-      ✖ Done with 1 failure(s), 0 error(s), 0 skipped and 0 success(es).
+      ✔ PHP Coding Standards Fixer: General
+
+      ✖ Done with 1 failure(s), 0 error(s), 0 skipped and 1 success(es).
 
     ');
 
@@ -117,7 +119,9 @@ class PHPCodingStandardsFixerTest {
         -
         +
 
-      ✖ Done with 1 failure(s), 0 error(s), 0 skipped and 0 success(es).
+      ✔ PHP Coding Standards Fixer: General
+
+      ✖ Done with 1 failure(s), 0 error(s), 0 skipped and 1 success(es).
 
     ');
 
