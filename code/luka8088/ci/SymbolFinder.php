@@ -12,11 +12,12 @@ class SymbolFinder {
       $this->data[$file] = is_file($file) ? self::parse(file_get_contents($file)) : ['maxColumn' => 0];
 
     for ($scanLine = $line; $scanLine > 0; $scanLine -= 1)
-      for ($scanColumn = $this->data[$file]['maxColumn']; $scanColumn > 0; $scanColumn -= 1)
-        if (isset($this->data[$file][$scanLine . ':' . $scanColumn]))
-          return $this->data[$file][$scanLine . ':' . $scanColumn]
-            ? $this->data[$file][$scanLine . ':' . $scanColumn]
-            : ($fileSymbol ? $fileSymbol : $file);
+      if (isset($this->data[$file][$scanLine]))
+        for ($scanColumn = $this->data[$file]['maxColumn']; $scanColumn > 0; $scanColumn -= 1)
+          if (isset($this->data[$file][$scanLine][$scanColumn]))
+            return $this->data[$file][$scanLine][$scanColumn]
+              ? $this->data[$file][$scanLine][$scanColumn]
+              : ($fileSymbol ? $fileSymbol : $file);
 
     return $fileSymbol ? $fileSymbol : $file;
 
@@ -24,9 +25,8 @@ class SymbolFinder {
 
   static function parse ($source) {
 
-    $data = [];
+    $data = ['maxColumn' => 0];
 
-    static $nameTokens = [T_WHITESPACE, T_STRING, T_NS_SEPARATOR];
     $contextStack = [
       ['name' => '', 'entered' => false, 'isClass' => false],
       ['name' => '', 'entered' => false, 'isClass' => false],
@@ -63,13 +63,13 @@ class SymbolFinder {
           $beginIndex = $index;
         $name = '';
         $nextToken();
-        while (isset($tokens[$index]) && in_array($tokens[$index][0], $nameTokens)) {
+        while (isset($tokens[$index]) && in_array($tokens[$index][0], [T_WHITESPACE, T_STRING, T_NS_SEPARATOR])) {
           $name .= trim($tokens[$index][1]);
           $nextToken();
         }
         array_unshift($contextStack, ['name' => $name, 'entered' => false, 'isClass' => false]);
         if ($contextStack[0]['name'] != $contextStack[1]['name'])
-          $data[$tokens[$beginIndex][2] . ':' . $tokens[$beginIndex][3]] = $contextStack[0]['name'];
+          $data[$tokens[$beginIndex][2]][$tokens[$beginIndex][3]] = $contextStack[0]['name'];
         $beginIndex = 0;
         continue;
       }
@@ -78,7 +78,7 @@ class SymbolFinder {
           $beginIndex = $index;
         $name = '';
         $nextToken();
-        while (isset($tokens[$index]) && in_array($tokens[$index][0], $nameTokens)) {
+        while (isset($tokens[$index]) && in_array($tokens[$index][0], [T_WHITESPACE, T_STRING, T_NS_SEPARATOR])) {
           $name .= trim($tokens[$index][1]);
           $nextToken();
         }
@@ -88,7 +88,7 @@ class SymbolFinder {
           'isClass' => true,
         ]);
         if ($contextStack[0]['name'] != $contextStack[1]['name'])
-          $data[$tokens[$beginIndex][2] . ':' . $tokens[$beginIndex][3]] = $contextStack[0]['name'];
+          $data[$tokens[$beginIndex][2]][$tokens[$beginIndex][3]] = $contextStack[0]['name'];
         $beginIndex = 0;
         continue;
       }
@@ -97,7 +97,7 @@ class SymbolFinder {
           $beginIndex = $index;
         $name = '';
         $nextToken();
-        while (isset($tokens[$index]) && in_array($tokens[$index][0], $nameTokens)) {
+        while (isset($tokens[$index]) && in_array($tokens[$index][0], [T_WHITESPACE, T_STRING, T_NS_SEPARATOR])) {
           $name .= trim($tokens[$index][1]);
           $nextToken();
         }
@@ -107,7 +107,7 @@ class SymbolFinder {
           'isClass' => false,
         ]);
         if ($contextStack[0]['name'] != $contextStack[1]['name'])
-          $data[$tokens[$beginIndex][2] . ':' . $tokens[$beginIndex][3]] = $contextStack[0]['name'];
+          $data[$tokens[$beginIndex][2]][$tokens[$beginIndex][3]] = $contextStack[0]['name'];
         $beginIndex = 0;
         continue;
       }
@@ -130,10 +130,10 @@ class SymbolFinder {
       }
       if ($tokens[$index][1] == '}' && count($contextStack) > 2) {
         if ($contextStack[0]['name'] != $contextStack[1]['name'])
-          $data[
-            ($tokens[$index][2] + count(explode("\n", $tokens[$index][1])) - 1)
-            . ':' . ($tokens[$index][3] + strlen($tokens[$index][1]))
-          ] = $contextStack[1]['name'];
+          $data
+            [$tokens[$index][2] + count(explode("\n", $tokens[$index][1])) - 1]
+            [$tokens[$index][3] + strlen($tokens[$index][1])]
+            = $contextStack[1]['name'];
         array_shift($contextStack);
         $nextToken();
         continue;
@@ -142,10 +142,10 @@ class SymbolFinder {
     }
 
     while (count($contextStack) > 2) {
-      $data[
-        (end($tokens)[2] + count(explode("\n", end($tokens)[1])) - 1)
-        . ':' . (end($tokens)[3] + strlen(end($tokens)[1]))
-      ] = $contextStack[0]['name'];
+      $data
+        [end($tokens)[2] + count(explode("\n", end($tokens)[1])) - 1]
+        [end($tokens)[3] + strlen(end($tokens)[1])]
+        = $contextStack[0]['name'];
       array_shift($contextStack);
     }
 
