@@ -31,16 +31,13 @@ return function ($ci) {
     // Runs inline tests.
     $ci[] = new \luka8088\ci\test\tool\InlineTest();
 
-    // Filters out known issues from the report.
-    $ci[] = new \luka8088\ci\test\filter\KnownIssues(__dir__ . '/.knownIssues');
-
     // Paths to scan for code.
     $ci->addPath(__dir__ . '/src');
 
 };
 ```
 
-For a more verbose configuration example check the [configuration](/documentation/configuration.md) page.
+For a more verbose configuration example check out the [configuration](/documentation/configuration.md) page.
 
 To invoke CI-PHP run:
 ```bash
