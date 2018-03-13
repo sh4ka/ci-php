@@ -7,7 +7,7 @@ use \luka8088\ci\Application;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
 use \luka8088\ExtensionInterface;
-use \luka8088\phops as op;
+use \luka8088\phops\MetaContext;
 use \Symfony\Component\Console\Input\InputInterface;
 use \Symfony\Component\Console\Input\InputOption;
 use \Symfony\Component\Console\Output\OutputInterface;
@@ -24,29 +24,29 @@ class Command extends \Symfony\Component\Console\Command\Command {
 
     // @todo: Rething.
     $hasConsole = false;
-    foreach (op\metaContext(Application::class)->extensions as $extension)
+    foreach (MetaContext::get(Application::class)->extensions as $extension)
       if ($extension instanceof \luka8088\ci\test\report\Console)
         $hasConsole = true;
     if (!$hasConsole)
-      op\metaContext(Application::class)[] = new \luka8088\ci\test\report\Console();
+      MetaContext::get(Application::class)[] = new \luka8088\ci\test\report\Console();
 
-    op\metaContext(ExtensionInterface::class)[] = [
+    MetaContext::get(ExtensionInterface::class)[] = [
       /** @ExtensionCall('luka8088.ci.test.configureCommand') */ function ($command) {},
     ];
-    op\metaContext(ExtensionInterface::class)['luka8088.ci.test.configureCommand']->__invoke($this);
+    MetaContext::get(ExtensionInterface::class)['luka8088.ci.test.configureCommand']->__invoke($this);
   }
 
   function execute (InputInterface $input, OutputInterface $output) {
 
-    $inputMetaContext = op\metaContextCreateScoped(InputInterface::class, $input);
-    $outputMetaContext = op\metaContextCreateScoped(OutputInterface::class, $output);
-    $resultMetaContext = op\metaContextCreateScoped(Result::class, new Result());
+    $inputMetaContext = MetaContext::enterDestructible(InputInterface::class, $input);
+    $outputMetaContext = MetaContext::enterDestructible(OutputInterface::class, $output);
+    $resultMetaContext = MetaContext::enterDestructible(Result::class, new Result());
 
-    op\metaContext(ExtensionInterface::class)["luka8088.ci.test.begin"]->__invoke();
-    op\metaContext(ExtensionInterface::class)["luka8088.ci.test.run"]->__invoke();
+    MetaContext::get(ExtensionInterface::class)["luka8088.ci.test.begin"]->__invoke();
+    MetaContext::get(ExtensionInterface::class)["luka8088.ci.test.run"]->__invoke();
 
     $testers = [];
-    foreach (op\metaContext(Application::class)->extensions as $extension)
+    foreach (MetaContext::get(Application::class)->extensions as $extension)
       if (method_exists($extension, 'runTests'))
         $testers[$extension->getIdentifier()] = $extension;
 
@@ -59,7 +59,7 @@ class Command extends \Symfony\Component\Console\Command\Command {
       $tester->runTests();
     }
 
-    op\metaContext(ExtensionInterface::class)["luka8088.ci.test.end"]->__invoke();
+    MetaContext::get(ExtensionInterface::class)["luka8088.ci.test.end"]->__invoke();
 
   }
 

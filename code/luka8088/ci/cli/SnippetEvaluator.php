@@ -3,7 +3,8 @@
 namespace luka8088\ci\cli;
 
 use \ErrorException;
-use \luka8088\phops as op;
+use \luka8088\phops\DestructCallback;
+use \luka8088\phops\MetaContext;
 
 class SnippetEvaluator {
 
@@ -11,17 +12,17 @@ class SnippetEvaluator {
   public $interactiveSnippet = '';
 
   function evaluate ($snippet) {
-    $errorHandlerScoped = op\scopeExit(function () { restore_error_handler(); });
+    $errorHandlerScoped = DestructCallback::create(function () { restore_error_handler(); });
     set_error_handler(function ($errno, $errstr, $errfile, $errline) {
       throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
     });
-    op\metaContext(SnippetEvaluator::class)->interactiveSnippet = $snippet;
+    MetaContext::get(SnippetEvaluator::class)->interactiveSnippet = $snippet;
     call_user_func(function () {
-      extract(op\metaContext(SnippetEvaluator::class)->variables);
+      extract(MetaContext::get(SnippetEvaluator::class)->variables);
       eval(call_user_func(function () {
-        return op\metaContext(SnippetEvaluator::class)->interactiveSnippet . ';';
+        return MetaContext::get(SnippetEvaluator::class)->interactiveSnippet . ';';
       }));
-      op\metaContext(SnippetEvaluator::class)->variables += get_defined_vars();
+      MetaContext::get(SnippetEvaluator::class)->variables += get_defined_vars();
     });
   }
 

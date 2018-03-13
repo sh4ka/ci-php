@@ -4,7 +4,7 @@ namespace luka8088\ci\cli;
 
 use \Exception;
 use \luka8088\ci\cli\SnippetEvaluator;
-use \luka8088\phops as op;
+use \luka8088\phops\MetaContext;
 use \Symfony\Component\Console\Input\InputInterface;
 use \Symfony\Component\Console\Output\OutputInterface;
 use \Symfony\Component\Console\Question\Question;
@@ -24,7 +24,7 @@ class Command extends \Symfony\Component\Console\Command\Command {
 
     $output->write("Running interactive console mode.\n");
 
-    $snippetEvaluatorMetaContext = op\metaContextCreateScoped(SnippetEvaluator::class, new SnippetEvaluator());
+    $snippetEvaluatorMetaContext = MetaContext::enterDestructible(SnippetEvaluator::class, new SnippetEvaluator());
 
     $nlEnd = true;
 
@@ -45,7 +45,7 @@ class Command extends \Symfony\Component\Console\Command\Command {
       $exception = null;
       try {
         $nlEnd = true;
-        op\metaContext(SnippetEvaluator::class)->evaluate($snippet);
+        MetaContext::get(SnippetEvaluator::class)->evaluate($snippet);
       } catch (Exception $exception) {
       } catch (Throwable $exception) {
       }

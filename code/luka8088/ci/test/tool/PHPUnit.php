@@ -7,7 +7,7 @@ use \luka8088\ci\Application;
 use \luka8088\ci\Internal;
 use \luka8088\ci\SymbolFinder;
 use \luka8088\ci\test\Result;
-use \luka8088\phops as op;
+use \luka8088\phops\MetaContext;
 use \SimpleXMLElement;
 use \Symfony\Component\Process\Process;
 
@@ -124,7 +124,7 @@ class PHPUnit {
       }
 
     foreach ($testMessageMap as $testName => $message)
-      op\metaContext(Result::class)->addTest(
+      MetaContext::get(Result::class)->addTest(
         $testStatusMap[$testName],
         $testName,
         implode("\n", array_unique($message))
@@ -137,7 +137,7 @@ class PHPUnit {
     $coverageReportSource = stream_get_contents($coverageReportFile);
 
     if (!$coverageReportSource)
-      op\metaContext(Result::class)->addTest(
+      MetaContext::get(Result::class)->addTest(
         'error',
         'PHPUnit Code Coverage: Report',
         'PHPUnit Code Coverage: Unable to generate report.'
@@ -149,7 +149,7 @@ class PHPUnit {
       foreach ($coverageReport->xpath('.//file') as $file) {
         $fileSymbol = ltrim(str_replace('\\', '/', substr(
           $file->attributes()->name->__toString(),
-          strlen(realpath(op\metaContext(Application::class)->getParameter('rootPath')))
+          strlen(realpath(MetaContext::get(Application::class)->getParameter('rootPath')))
         )), '/');
         foreach ($file->xpath('.//line[@type="stmt"]') as $lineCoverage) {
           $symbolLocation = $symbolFinder->findByLocation(
@@ -166,7 +166,7 @@ class PHPUnit {
 
       foreach ($symbolCoverageMap as $symbol => $symbolCoverage) {
         $coverage = count(array_filter($symbolCoverage)) / count($symbolCoverage);
-        op\metaContext(Result::class)->addTest(
+        MetaContext::get(Result::class)->addTest(
           $coverage < 1 ? 'failure' : 'success',
           'PHPUnit Code Coverage: Code coverage for ' . $symbol,
           'Code coverage is ' . number_format($coverage * 100, 2) . '%.'

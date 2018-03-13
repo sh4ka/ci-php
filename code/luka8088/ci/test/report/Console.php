@@ -4,7 +4,7 @@ namespace luka8088\ci\test\report;
 
 use \luka8088\ci\Application;
 use \luka8088\ExtensionCall;
-use \luka8088\phops as op;
+use \luka8088\phops\MetaContext;
 use \Symfony\Component\Console\Input\InputInterface;
 use \Symfony\Component\Console\Input\InputOption;
 use \Symfony\Component\Console\Output\OutputInterface;
@@ -21,7 +21,7 @@ class Console {
 
   /** @ExtensionCall('luka8088.ci.test.configureCommand') */
   function configureCommand ($command) {
-    op\metaContext(Application::class)->createParameter('console.showSuccesses', true);
+    MetaContext::get(Application::class)->createParameter('console.showSuccesses', true);
     $command
       ->addOption('show-successes', null, InputOption::VALUE_OPTIONAL, 'Show successful tests in the console output.')
     ;
@@ -29,17 +29,17 @@ class Console {
 
   /** @ExtensionCall("luka8088.ci.test.begin") */
   function begin () {
-    $this->showSuccesses = op\metaContext(Application::class)->getParameter('console.showSuccesses');
+    $this->showSuccesses = MetaContext::get(Application::class)->getParameter('console.showSuccesses');
     $showSuccesses = filter_var(
-      op\metaContext(InputInterface::class)->getOption('show-successes') !== null
-        ? op\metaContext(InputInterface::class)->getOption('show-successes')
+      MetaContext::get(InputInterface::class)->getOption('show-successes') !== null
+        ? MetaContext::get(InputInterface::class)->getOption('show-successes')
         : 'x',
       FILTER_VALIDATE_BOOLEAN,
       FILTER_NULL_ON_FAILURE
     );
     if (is_bool($showSuccesses))
       $this->showSuccesses = $showSuccesses;
-    op\metaContext(OutputInterface::class)->write("\n  Running tests ...\n");
+    MetaContext::get(OutputInterface::class)->write("\n  Running tests ...\n");
     $this->previousTest = null;
     $this->successCount = 0;
     $this->skippedCount = 0;
@@ -61,7 +61,7 @@ class Console {
       return;
     $message = trim(preg_replace_callback('/(?i)((http|https)\:\/\/[^ \t\r\n\(\)\<\>\*\;]+)/', function ($match) {
         return "\x1b[93m" . $match[1] . "\x1b[0m";
-    }, $test['message'] . (op\metaContext(OutputInterface::class)->isVerbose() && $test['description']
+    }, $test['message'] . (MetaContext::get(OutputInterface::class)->isVerbose() && $test['description']
       ? "\n" . $test['description']
       : '')));
     $hasSpacer
@@ -69,7 +69,7 @@ class Console {
       || in_array($this->previousTest['status'], ['error', 'failure'])
       || in_array($test['status'], ['error', 'failure'])
     ;
-    op\metaContext(OutputInterface::class)->write(
+    MetaContext::get(OutputInterface::class)->write(
       ($hasSpacer ? "\n" : '')
       . ($test['status'] == 'error' ? "  \x1b[91m❗ "
         : ($test['status'] == 'failure' ? "  \x1b[91m✖ " : "  \x1b[92m✔ "))
@@ -84,7 +84,7 @@ class Console {
 
   /** @ExtensionCall("luka8088.ci.test.end") */
   function end () {
-    op\metaContext(OutputInterface::class)->write(
+    MetaContext::get(OutputInterface::class)->write(
       "\n  "
       . ($this->errorCount > 0 ? "\x1b[91m❗" : ($this->failureCount > 0 ? "\x1b[91m✖" : ($this->successCount > 0 ? "\x1b[92m✔" : "\x1b[93m❓")))
       . " Done with "

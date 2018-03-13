@@ -17,7 +17,7 @@ if (in_array('xdebug', array_map(function ($name) { return strtolower($name); },
 
 ini_set('memory_limit', -1);
 
-\luka8088\phops\initializeStrictMode();
+\luka8088\phops\Strict::initialize();
 
 call_user_func(function () {
 

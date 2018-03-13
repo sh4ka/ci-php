@@ -7,7 +7,7 @@ use \luka8088\ci\Application;
 use \luka8088\ci\Internal;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
-use \luka8088\phops as op;
+use \luka8088\phops\MetaContext;
 use \Symfony\Component\Process\PhpExecutableFinder;
 use \Symfony\Component\Process\Process;
 
@@ -49,7 +49,7 @@ class PHPCodingStandardsFixer {
       $finder = \PhpCsFixer\Finder::create()
         ->in(' . implode(')->in(', array_map(function ($path) {
           return var_export($path, true);
-        }, op\metaContext(Application::class)->paths)) . ')
+        }, MetaContext::get(Application::class)->paths)) . ')
       ;
       $configuration->setFinder($finder);
       return $configuration;
@@ -99,10 +99,10 @@ class PHPCodingStandardsFixer {
 
     foreach ($phpcsfixerReport["files"] as $file) {
       $filePath = $file["name"];
-      if (strpos(realpath($file["name"]), realpath(op\metaContext(Application::class)->getParameter('rootPath'))) === 0)
+      if (strpos(realpath($file["name"]), realpath(MetaContext::get(Application::class)->getParameter('rootPath'))) === 0)
         $filePath = ltrim(str_replace('\\', '/', substr(realpath($file["name"]),
-          strlen(realpath(op\metaContext(Application::class)->getParameter('rootPath'))))), '/');
-      op\metaContext(Result::class)->addTest(
+          strlen(realpath(MetaContext::get(Application::class)->getParameter('rootPath'))))), '/');
+      MetaContext::get(Result::class)->addTest(
         'failure',
         'PHP Coding Standards Fixer: Coding Standards in ' . $filePath,
         'Fixes that need to be applied: ' . implode(", ", $file["appliedFixers"]),
@@ -110,7 +110,7 @@ class PHPCodingStandardsFixer {
       );
     }
 
-    op\metaContext(Result::class)->addTest(
+    MetaContext::get(Result::class)->addTest(
       'success',
       'PHP Coding Standards Fixer: General',
       'No PHP Coding Standards Fixer analysis complete.'

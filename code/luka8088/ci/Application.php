@@ -6,7 +6,7 @@ use \ArrayAccess;
 use \Exception;
 use \luka8088\ExtensionCall;
 use \luka8088\ExtensionInterface;
-use \luka8088\phops as op;
+use \luka8088\phops\MetaContext;
 use \Symfony\Component\Console\Command\Command;
 use \Symfony\Component\Console\Input\InputDefinition;
 use \Symfony\Component\Console\Input\InputInterface;
@@ -44,8 +44,8 @@ class Application extends \Symfony\Component\Console\Application implements Arra
       'Path to a configuration file.'
     ));
 
-    $applicationMetaContext = op\metaContextCreateScoped(Application::class, $this);
-    $extensionInterfaceMetaContext = op\metaContextCreateScoped(ExtensionInterface::class, $this->extensionInterface);
+    $applicationMetaContext = MetaContext::enterDestructible(Application::class, $this);
+    $extensionInterfaceMetaContext = MetaContext::enterDestructible(ExtensionInterface::class, $this->extensionInterface);
 
     $this->createParameter('rootPath', '');
 
@@ -56,8 +56,8 @@ class Application extends \Symfony\Component\Console\Application implements Arra
 
   function doRun (InputInterface $input = null, OutputInterface $output = null) {
 
-    $applicationMetaContext = op\metaContextCreateScoped(Application::class, $this);
-    $extensionInterfaceMetaContext = op\metaContextCreateScoped(ExtensionInterface::class, $this->extensionInterface);
+    $applicationMetaContext = MetaContext::enterDestructible(Application::class, $this);
+    $extensionInterfaceMetaContext = MetaContext::enterDestructible(ExtensionInterface::class, $this->extensionInterface);
 
     $configurationPath = $input->getParameterOption('-c')
       ? $input->getParameterOption('-c')

@@ -8,7 +8,7 @@ use \luka8088\ci\Internal;
 use \luka8088\ci\SymbolFinder;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
-use \luka8088\phops as op;
+use \luka8088\phops\MetaContext;
 use \SimpleXMLElement;
 use \Symfony\Component\Process\PhpExecutableFinder;
 use \Symfony\Component\Process\Process;
@@ -58,7 +58,7 @@ class PHPMessDetector {
         : escapeshellarg($alteredINIFileInfo['uri']))
       #. ' ' . '-dzend.enable_gc=0'
       . ' ' . escapeshellarg($executable)
-      . ' ' . escapeshellarg(implode(',', op\metaContext(Application::class)->paths))
+      . ' ' . escapeshellarg(implode(',', MetaContext::get(Application::class)->paths))
       . ' ' . 'xml'
       . ' ' . escapeshellarg($this->configuration)
       . ' ' . '--ignore-violations-on-exit'
@@ -88,7 +88,7 @@ class PHPMessDetector {
       foreach ($file->xpath(".//violation") as $violation) {
         $fileSymbol = ltrim(str_replace('\\', '/', substr(
           realpath($file->attributes()->name->__toString()),
-          strlen(realpath(op\metaContext(Application::class)->getParameter('rootPath')))
+          strlen(realpath(MetaContext::get(Application::class)->getParameter('rootPath')))
         )), '/');
         $testcaseName = $violation->attributes()->rule->__toString() . " at " . $symbolFinder->findByLocation(
           $file->attributes()->name->__toString(),
@@ -106,7 +106,7 @@ class PHPMessDetector {
     }
     foreach ($testcaseMessageMap as $testcaseName => $message) {
       $rule = substr($testcaseName, 0, strpos($testcaseName, ' '));
-      op\metaContext(Result::class)->addTest(
+      MetaContext::get(Result::class)->addTest(
         'failure',
         'PHP Mess Detector: ' . $testcaseName,
         implode("\n", array_unique($message))
@@ -115,7 +115,7 @@ class PHPMessDetector {
       );
     }
 
-    op\metaContext(Result::class)->addTest(
+    MetaContext::get(Result::class)->addTest(
       'success',
       'PHP Mess Detector: General',
       'No PHP Mess Detector analysis complete.'

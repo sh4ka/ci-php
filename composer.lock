@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "08d41f31ef15f4355e8b481d69950e07",
+    "content-hash": "0b6e64343132b45f94c781110424f3e5",
     "packages": [
         {
             "name": "luka8088/attribute",
@@ -94,34 +94,36 @@
         },
         {
             "name": "luka8088/phops",
-            "version": "0.4.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/luka8088/phops.git",
-                "reference": "946eac846d5e820e56feb6b025df171b4d8e8703"
+                "reference": "e8ae7d716bd4f87336c81b2db8c2555f89816037"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/luka8088%2Fphops/repository/archive.zip?sha=946eac846d5e820e56feb6b025df171b4d8e8703",
-                "reference": "946eac846d5e820e56feb6b025df171b4d8e8703",
+                "url": "https://gitlab.com/api/v4/projects/luka8088%2Fphops/repository/archive.zip?sha=e8ae7d716bd4f87336c81b2db8c2555f89816037",
+                "reference": "e8ae7d716bd4f87336c81b2db8c2555f89816037",
                 "shasum": ""
             },
             "require": {
                 "php": "^5.5 || ^7.0"
             },
+            "require-dev": {
+                "luka8088/ci": "^0.1@dev"
+            },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.4.x-dev"
+                    "dev-master": "0.5.x-dev"
                 }
             },
             "autoload": {
+                "psr-4": {
+                    "": "code/"
+                },
                 "files": [
-                    "code/luka8088/phops/convert.php",
-                    "code/luka8088/phops/metaContext.php",
-                    "code/luka8088/phops/scopeExit.php",
-                    "code/luka8088/phops/strict.php",
-                    "code/luka8088/phops/traits.php"
+                    "code/luka8088/phops/legacy.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -134,9 +136,9 @@
                     "email": "luka8088@nrsk.net"
                 }
             ],
-            "description": "PHP Standard Library Extensions.",
+            "description": "PHP Core Library Extensions.",
             "homepage": "https://gitlab.com/luka8088/phops",
-            "time": "2017-09-05T21:48:07+00:00"
+            "time": "2018-03-12 23:02:06"
         },
         {
             "name": "symfony/console",
@@ -502,16 +504,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v2.10.3",
+            "version": "v2.10.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "1634a2c250bf4640f1c5c963f63b413c2d966c8a"
+                "reference": "b2dce1dacff988b79c4aadf252e5dee31bc04e19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/1634a2c250bf4640f1c5c963f63b413c2d966c8a",
-                "reference": "1634a2c250bf4640f1c5c963f63b413c2d966c8a",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/b2dce1dacff988b79c4aadf252e5dee31bc04e19",
+                "reference": "b2dce1dacff988b79c4aadf252e5dee31bc04e19",
                 "shasum": ""
             },
             "require": {
@@ -535,14 +537,14 @@
                 "hhvm": "*"
             },
             "require-dev": {
-                "johnkary/phpunit-speedtrap": "^1.1 || ^2.0@dev",
+                "johnkary/phpunit-speedtrap": "^1.1 || ^2.0 || ^3.0",
                 "justinrainbow/json-schema": "^5.0",
                 "keradus/cli-executor": "^1.0",
                 "mikey179/vfsstream": "^1.6",
                 "php-coveralls/php-coveralls": "^2.0",
                 "php-cs-fixer/accessible-object": "^1.0",
                 "phpunit/phpunit": "^5.7.23 || ^6.4.3",
-                "phpunitgoodpractices/traits": "^1.0",
+                "phpunitgoodpractices/traits": "^1.3.1",
                 "symfony/phpunit-bridge": "^3.2.2 || ^4.0"
             },
             "suggest": {
@@ -585,7 +587,7 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
-            "time": "2018-02-22T16:49:33+00:00"
+            "time": "2018-03-08T11:13:12+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -1406,7 +1408,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "luka8088/phops": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

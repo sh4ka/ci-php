@@ -6,7 +6,8 @@ use \ErrorException;
 use \Exception;
 use \luka8088\ci\Application;
 use \luka8088\ci\test\Result;
-use \luka8088\phops as op;
+use \luka8088\phops\DestructCallback;
+use \luka8088\phops\MetaContext;
 use \RecursiveDirectoryIterator;
 use \RecursiveIteratorIterator;
 use \ReflectionFunction;
@@ -23,7 +24,7 @@ class InlineTest {
 
     $files = [];
 
-    foreach (op\metaContext(Application::class)->paths as $scanPath)
+    foreach (MetaContext::get(Application::class)->paths as $scanPath)
       foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($scanPath)) as $file)
         if (in_array($file->getExtension(), ['php'])) {
           $fileContent = file_get_contents($file);
@@ -83,7 +84,7 @@ class InlineTest {
       return filemtime($rhsReflection->getFileName()) - filemtime($lhsReflection->getFileName());
     });
 
-    $errorHandlerScoped = op\scopeExit(function () { restore_error_handler(); });
+    $errorHandlerScoped = DestructCallback::create(function () { restore_error_handler(); });
     set_error_handler(function ($errno, $errstr, $errfile, $errline) {
       throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
     });
@@ -98,7 +99,7 @@ class InlineTest {
       } catch (Throwable $e) {
         $status = 'failure';
       }
-      op\metaContext(Result::class)->addTest(
+      MetaContext::get(Result::class)->addTest(
         $status,
         'Inline test: ' . (is_string($test) ? $test : $test[0] . '::' . $test[1]),
         $e ? (string) $e : ''

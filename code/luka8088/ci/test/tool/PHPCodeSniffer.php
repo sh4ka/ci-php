@@ -8,7 +8,7 @@ use \luka8088\ci\Internal;
 use \luka8088\ci\SymbolFinder;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
-use \luka8088\phops as op;
+use \luka8088\phops\MetaContext;
 use \SimpleXMLElement;
 use \Symfony\Component\Process\PhpExecutableFinder;
 use \Symfony\Component\Process\Process;
@@ -58,7 +58,7 @@ class PHPCodeSniffer {
         : escapeshellarg($alteredINIFileInfo['uri']))
       #. ' ' . '-dzend.enable_gc=0'
       . ' ' . escapeshellarg($executable)
-      . ' ' . implode(' ', array_map('escapeshellarg', op\metaContext(Application::class)->paths))
+      . ' ' . implode(' ', array_map('escapeshellarg', MetaContext::get(Application::class)->paths))
       . ' ' . '--standard=' . escapeshellarg($this->configuration)
       . ' ' . '--report=junit'
       . ' ' . '--runtime-set ignore_errors_on_exit 1'
@@ -97,7 +97,7 @@ class PHPCodeSniffer {
       $testcaseName = preg_replace_callback($regex, function ($match) use ($symbolFinder) {
         $fileSymbol = ltrim(str_replace('\\', '/', substr(
           realpath($match[2]),
-          strlen(realpath(op\metaContext(Application::class)->getParameter('rootPath')))
+          strlen(realpath(MetaContext::get(Application::class)->getParameter('rootPath')))
         )), '/');
         return $match[1] . $symbolFinder->findByLocation($match[2], $match[4], $match[6], $fileSymbol);
       }, $testcase->attributes()->name->__toString());
@@ -111,7 +111,7 @@ class PHPCodeSniffer {
       }
     }
     foreach ($testcaseMessageMap as $testcaseName => $message)
-      op\metaContext(Result::class)->addTest(
+      MetaContext::get(Result::class)->addTest(
         'failure',
         'PHP Code Sniffer: ' . $testcaseName,
         implode("\n", array_unique($message))#,
@@ -119,7 +119,7 @@ class PHPCodeSniffer {
         #  . strtolower(implode('', array_slice(explode('.', $testcaseName), 0, 3)))
       );
 
-    op\metaContext(Result::class)->addTest(
+    MetaContext::get(Result::class)->addTest(
       'success',
       'PHP Code Sniffer: General',
       'PHP Code Sniffer analysis complete.'
