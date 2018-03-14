@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "639a02f2d9305c0e42f98c2c2da5907c",
+    "content-hash": "d3a6977598834eca55ac2fb16ebd3229",
     "packages": [
         {
             "name": "luka8088/attribute",
@@ -94,16 +94,16 @@
         },
         {
             "name": "luka8088/phops",
-            "version": "0.4.2",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/luka8088/phops.git",
-                "reference": "34727aff3341057143d41aef8971888b54ecaa9a"
+                "reference": "6c1cf2a68412bc5b46d4e02d35eb676bc7b87450"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/luka8088%2Fphops/repository/archive.zip?sha=34727aff3341057143d41aef8971888b54ecaa9a",
-                "reference": "34727aff3341057143d41aef8971888b54ecaa9a",
+                "url": "https://gitlab.com/api/v4/projects/luka8088%2Fphops/repository/archive.zip?sha=6c1cf2a68412bc5b46d4e02d35eb676bc7b87450",
+                "reference": "6c1cf2a68412bc5b46d4e02d35eb676bc7b87450",
                 "shasum": ""
             },
             "require": {
@@ -115,17 +115,13 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.4.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
                     "": "code/"
-                },
-                "files": [
-                    "code/luka8088/phops/legacy.php",
-                    "code/luka8088/phops/traits.php"
-                ]
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -137,9 +133,9 @@
                     "email": "luka8088@nrsk.net"
                 }
             ],
-            "description": "PHP Standard Library Extensions.",
+            "description": "PHP Core Library Extensions.",
             "homepage": "https://gitlab.com/luka8088/phops",
-            "time": "2018-03-12T21:28:56+00:00"
+            "time": "2018-03-14T19:12:08+00:00"
         },
         {
             "name": "symfony/console",
