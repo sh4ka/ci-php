@@ -4,10 +4,10 @@ namespace luka8088\ci\test\tool;
 
 use \Exception;
 use \luka8088\ci\Application;
-use \luka8088\ci\Internal;
 use \luka8088\ci\SymbolFinder;
 use \luka8088\ci\test\Result;
 use \luka8088\phops\MetaContext;
+use \luka8088\XdebugHelper;
 use \SimpleXMLElement;
 use \Symfony\Component\Process\Process;
 
@@ -48,16 +48,12 @@ class PHPUnit {
 
     if (is_file(dirname($phpExecutablePath) . '/phpdbg') || is_file(dirname($phpExecutablePath) . '/phpdbg.exe')) {
 
-      $alteredINIFile = tmpfile();
-      fwrite($alteredINIFile, Internal::disableINIXDebug(Internal::loadedINI()));
-      $alteredINIFileInfo = stream_get_meta_data($alteredINIFile);
-
       $phpExecutablePath = dirname($phpExecutablePath) . '/phpdbg';
       $phpExecutableArguments = ''
         . ' ' . '-qrr'
         . ' ' . '-c ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
-          ? '"' . addcslashes($alteredINIFileInfo['uri'], '\\"') . '"'
-          : escapeshellarg($alteredINIFileInfo['uri']))
+          ? '"' . addcslashes(XdebugHelper::iniFileWithoutXdebug(), '\\"') . '"'
+          : escapeshellarg(XdebugHelper::iniFileWithoutXdebug()))
       ;
 
     }

@@ -8,7 +8,7 @@ foreach ([__dir__ . '/../../autoload.php', __dir__ . '/vendor/autoload.php'] as 
 
 chdir($cwd);
 
-\luka8088\ci\Internal::disableXDebug();
+\luka8088\XdebugHelper::disable();
 
 if (in_array('xdebug', array_map(function ($name) { return strtolower($name); }, get_loaded_extensions(true))))
   echo "\x1b[33m" .

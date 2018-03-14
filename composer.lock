@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d3a6977598834eca55ac2fb16ebd3229",
+    "content-hash": "d13fae62812aff6eee9cdde1c3fac948",
     "packages": [
         {
             "name": "luka8088/attribute",
@@ -136,6 +136,51 @@
             "description": "PHP Core Library Extensions.",
             "homepage": "https://gitlab.com/luka8088/phops",
             "time": "2018-03-14T19:12:08+00:00"
+        },
+        {
+            "name": "luka8088/xdebug-helper",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://gitlab.com/luka8088/xdebug-helper.git",
+                "reference": "2d605f4ed633c58a3863c2ce6bd7196dfa04493d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://gitlab.com/api/v4/projects/luka8088%2Fxdebug-helper/repository/archive.zip?sha=2d605f4ed633c58a3863c2ce6bd7196dfa04493d",
+                "reference": "2d605f4ed633c58a3863c2ce6bd7196dfa04493d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.5 || ^7.0"
+            },
+            "require-dev": {
+                "luka8088/ci": "^0.1@dev"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "": "code/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Luka Unuk (luka8088)",
+                    "email": "luka8088@nrsk.net"
+                }
+            ],
+            "description": "PHP Xdebug Helper.",
+            "homepage": "https://gitlab.com/luka8088/xdebug-helper",
+            "time": "2018-03-14T20:32:20+00:00"
         },
         {
             "name": "symfony/console",

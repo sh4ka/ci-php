@@ -4,10 +4,10 @@ namespace luka8088\ci\test\tool;
 
 use \Exception;
 use \luka8088\ci\Application;
-use \luka8088\ci\Internal;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
 use \luka8088\phops\MetaContext;
+use \luka8088\XdebugHelper;
 use \Symfony\Component\Process\PhpExecutableFinder;
 use \Symfony\Component\Process\Process;
 
@@ -58,15 +58,11 @@ class PHPCodingStandardsFixer {
 
     $phpExecutableFinder = new PhpExecutableFinder();
 
-    $alteredINIFile = tmpfile();
-    fwrite($alteredINIFile, Internal::disableINIXDebug(Internal::loadedINI()));
-    $alteredINIFileInfo = stream_get_meta_data($alteredINIFile);
-
     $process = new Process(
       $phpExecutableFinder->find()
       . ' ' . '-c ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
-        ? '"' . addcslashes($alteredINIFileInfo['uri'], '\\"') . '"'
-        : escapeshellarg($alteredINIFileInfo['uri']))
+        ? '"' . addcslashes(XdebugHelper::iniFileWithoutXdebug(), '\\"') . '"'
+        : escapeshellarg(XdebugHelper::iniFileWithoutXdebug()))
       #. ' ' . '-dzend.enable_gc=0'
       . ' ' . escapeshellarg($executable)
       . ' ' . 'fix'
