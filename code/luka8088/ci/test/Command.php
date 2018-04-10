@@ -4,6 +4,7 @@ namespace luka8088\ci\test;
 
 use \Exception;
 use \luka8088\ci\Application;
+use \luka8088\ci\test\report\JUnit as JUnitReport;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
 use \luka8088\ExtensionInterface;
@@ -19,6 +20,7 @@ class Command extends \Symfony\Component\Console\Command\Command {
       ->setName('test')
       ->setDescription('Run code analysis and testing tools.')
       ->setHelp('Run code analysis and testing tools.')
+      ->addOption('report-junit', null, InputOption::VALUE_REQUIRED, 'Path to output a JUnit report to.')
       ->addOption('tool', null, InputOption::VALUE_OPTIONAL, 'Run only a specific tool.')
     ;
 
@@ -41,6 +43,10 @@ class Command extends \Symfony\Component\Console\Command\Command {
     $inputMetaContext = MetaContext::enterDestructible(InputInterface::class, $input);
     $outputMetaContext = MetaContext::enterDestructible(OutputInterface::class, $output);
     $resultMetaContext = MetaContext::enterDestructible(Result::class, new Result());
+
+    $junitReport = $input->getOption('report-junit');
+    if ($junitReport)
+      MetaContext::get(Application::class)[] = new JUnitReport(fopen($junitReport, 'w'));
 
     MetaContext::get(ExtensionInterface::class)["luka8088.ci.test.begin"]->__invoke();
     MetaContext::get(ExtensionInterface::class)["luka8088.ci.test.run"]->__invoke();
