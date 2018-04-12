@@ -9,7 +9,7 @@ class PHPMessDetectorTest {
    *
    * @test @internal
    */
-  static function default () {
+  static function defaultBehavior () {
 
     ci\Test::mockFilesystem(sys_get_temp_dir() . '/kibzsumvcs7sn33vodq9lnhtvsmu/', [
       '/phpmd.xml' =>

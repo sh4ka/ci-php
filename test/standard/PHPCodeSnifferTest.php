@@ -9,7 +9,7 @@ class PHPCodeSnifferTest {
    *
    * @test @internal
    */
-  static function default () {
+  static function defaultBehavior () {
 
     ci\Test::mockFilesystem(sys_get_temp_dir() . '/jvspttke0femf1b9uclankckhxdt/', [
       '/phpcs.xml' =>
