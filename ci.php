@@ -41,10 +41,10 @@ call_user_func(function () {
     $ci->setParameter('rootPath', $codePath);
 
   if (is_file($codePath . '/ci.configuration.distributed.php'))
-    $ci->configurations[] = $codePath . '/ci.configuration.distributed.php';
+    $ci->configurationPath = $codePath . '/ci.configuration.distributed.php';
 
   if (is_file($codePath . '/ci.configuration.php'))
-    $ci->configurations[] = $codePath . '/ci.configuration.php';
+    $ci->configurationPath = $codePath . '/ci.configuration.php';
 
   $ci->run();
 

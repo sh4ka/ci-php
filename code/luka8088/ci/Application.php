@@ -18,7 +18,7 @@ class Application extends \Symfony\Component\Console\Application implements Arra
   /** @internal */
   protected $extensionInterface = null;
 
-  public $configurations = [];
+  public $configurationPath = '';
   public $parameters = [];
   public $extensions = [];
   public $paths = [];
@@ -65,11 +65,11 @@ class Application extends \Symfony\Component\Console\Application implements Arra
     if ($configurationPath) {
       if (!is_file($configurationPath))
         throw new Exception('Configuration file *' . $configurationPath . '* not found.');
-      $this->configurations[] = $configurationPath;
+      $this->configurationPath = $configurationPath;
     }
 
-    foreach ($this->configurations as $configurationPath) {
-      $configurator = require($configurationPath);
+    if ($this->configurationPath) {
+      $configurator = require($this->configurationPath);
       $configurator($this);
     }
 
