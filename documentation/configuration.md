@@ -22,6 +22,12 @@ return function ($ci) {
     $ci[] = new \luka8088\ci\test\tool\InlineTest();
 
     /**
+     * Runs Phlint against the project.
+     * @see https://gitlab.com/phlint/phlint
+     */
+    $ci[] = new \luka8088\ci\test\tool\Phlint(__dir__ . '/phlint.configuration.distributed.php');
+
+    /**
      * Runs PHP Code Sniffer against the project.
      * @see https://github.com/squizlabs/PHP_CodeSniffer
      */
