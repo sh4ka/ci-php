@@ -3,6 +3,7 @@
 namespace luka8088\ci\test\report;
 
 use \luka8088\ci\Application;
+use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
 use \luka8088\phops\MetaContext;
 use \Symfony\Component\Console\Input\InputInterface;
@@ -92,8 +93,14 @@ class Console {
       . $this->errorCount . " error(s), "
       . $this->skippedCount . " skipped and "
       . $this->successCount . " success(es)."
-      . "\n\n"
       . "\x1b[0m"
+      . "\n"
+      . '    Running time: ' . number_format(
+        MetaContext::get(Result::class)->runningTime,
+        ceil(max(0, 2 - log10(MetaContext::get(Result::class)->runningTime)))
+      ) . "s\n"
+      . '    Memory usage: ' . number_format(MetaContext::get(Result::class)->memoryUsage / (1024 * 1024), 2) . "MB\n"
+      . "\n"
     );
   }
 

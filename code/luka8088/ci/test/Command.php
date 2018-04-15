@@ -44,6 +44,8 @@ class Command extends \Symfony\Component\Console\Command\Command {
     $outputMetaContext = MetaContext::enterDestructible(OutputInterface::class, $output);
     $resultMetaContext = MetaContext::enterDestructible(Result::class, new Result());
 
+    $beginTimestamp = microtime(true);
+
     $junitReport = $input->getOption('report-junit');
     if ($junitReport)
       MetaContext::get(Application::class)[] = new JUnitReport(fopen($junitReport, 'w'));
@@ -64,6 +66,8 @@ class Command extends \Symfony\Component\Console\Command\Command {
         continue;
       $tester->runTests();
     }
+
+    MetaContext::get(Result::class)->runningTime = microtime(true) - $beginTimestamp;
 
     MetaContext::get(ExtensionInterface::class)["luka8088.ci.test.end"]->__invoke();
 

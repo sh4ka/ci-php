@@ -8,9 +8,12 @@ use \luka8088\phops\MetaContext;
 
 class Result {
 
+  public $runningTime = 0;
+  public $memoryUsage = 0;
   public $tests = [];
 
   function addTest ($status, $name, $message, $description = '') {
+    $this->memoryUsage = max($this->memoryUsage, memory_get_usage());
     $test = new ArrayObject([
       'status' => $status,
       'name' => $name,
