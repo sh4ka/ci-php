@@ -20,6 +20,7 @@ class Command extends \Symfony\Component\Console\Command\Command {
       ->setName('test')
       ->setDescription('Run code analysis and testing tools.')
       ->setHelp('Run code analysis and testing tools.')
+      ->addOption('exit-code', null, InputOption::VALUE_NONE, 'Set exit code to non-zero if there are any issues.')
       ->addOption('report-junit', null, InputOption::VALUE_REQUIRED, 'Path to output a JUnit report to.')
       ->addOption('tool', null, InputOption::VALUE_OPTIONAL, 'Run only a specific tool.')
     ;
@@ -70,6 +71,14 @@ class Command extends \Symfony\Component\Console\Command\Command {
     MetaContext::get(Result::class)->runningTime = microtime(true) - $beginTimestamp;
 
     MetaContext::get(ExtensionInterface::class)["luka8088.ci.test.end"]->__invoke();
+
+    if ($input->getOption('exit-code')) {
+      $issuesCount = count(array_filter(MetaContext::get(Result::class)->tests, function ($test) {
+        return in_array($test['status'], ['error', 'failure']);
+      }));
+      if ($issuesCount > 0)
+        return 1;
+    }
 
   }
 
