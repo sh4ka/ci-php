@@ -4,6 +4,7 @@ namespace luka8088\ci\test;
 
 use \Exception;
 use \luka8088\ci\Application;
+use \luka8088\ci\test\report\Issues as IssuesReport;
 use \luka8088\ci\test\report\JUnit as JUnitReport;
 use \luka8088\ci\test\Result;
 use \luka8088\ExtensionCall;
@@ -21,6 +22,7 @@ class Command extends \Symfony\Component\Console\Command\Command {
       ->setDescription('Run code analysis and testing tools.')
       ->setHelp('Run code analysis and testing tools.')
       ->addOption('exit-code', null, InputOption::VALUE_NONE, 'Set exit code to non-zero if there are any issues.')
+      ->addOption('report-issues', null, InputOption::VALUE_REQUIRED, 'Path to output an issue report to.')
       ->addOption('report-junit', null, InputOption::VALUE_REQUIRED, 'Path to output a JUnit report to.')
       ->addOption('tool', null, InputOption::VALUE_OPTIONAL, 'Run only a specific tool.')
     ;
@@ -46,6 +48,10 @@ class Command extends \Symfony\Component\Console\Command\Command {
     $resultMetaContext = MetaContext::enterDestructible(Result::class, new Result());
 
     $beginTimestamp = microtime(true);
+
+    $issuesReport = $input->getOption('report-issues');
+    if ($issuesReport)
+      MetaContext::get(Application::class)[] = new IssuesReport(fopen($issuesReport, 'w'));
 
     $junitReport = $input->getOption('report-junit');
     if ($junitReport)
